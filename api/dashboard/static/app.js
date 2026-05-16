@@ -113,7 +113,10 @@ async function loadScenarios() {
       const btn = document.createElement('button');
       btn.className = 'scenario-btn';
       const lang = LANG_TAG[name] || 'EN';
-      btn.innerHTML = `${name.replace(/_/g, ' ')} <span class="lang-badge">${lang}</span>`;
+      // El label va en <span> (no text node suelto) porque .scenario-btn::before
+      // es un overlay opacity-driven y .scenario-btn > * { z-index: 1 } sólo
+      // eleva element children — un text node quedaría tapado en hover.
+      btn.innerHTML = `<span>${name.replace(/_/g, ' ')}</span> <span class="lang-badge">${lang}</span>`;
       btn.onclick = () => runScenario(name, btn);
       c.appendChild(btn);
     });

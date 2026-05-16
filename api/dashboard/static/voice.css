@@ -92,7 +92,7 @@
   border-radius: 999px;
   border: 1px solid var(--line);
 }
-.transcript-state.live { color: var(--red); border-color: var(--red); background: var(--red-bg); }
+.transcript-state.live { color: var(--red); border-color: var(--red); background: var(--red-50); }
 
 .transcript-stream {
   flex: 1;
