@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Geist } from "next/font/google";
 import { I18nProvider } from "@/lib/i18n";
 import { ToastProvider } from "@/components/ui/toast";
 import CommandPalette from "@/components/chrome/CommandPalette";
@@ -10,6 +10,13 @@ const inter = Inter({
   weight: ["300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
   variable: "--font-inter",
+});
+
+const geist = Geist({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  variable: "--font-geist",
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -26,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${geist.variable} ${jetbrainsMono.variable}`}>
       <body>
         <I18nProvider>
           <ToastProvider position="top-right">

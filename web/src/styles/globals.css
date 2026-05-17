@@ -74,6 +74,7 @@
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+  --font-display: var(--font-geist), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ────────── design system tokens (portados de style.css) ────────── */
@@ -370,6 +371,7 @@ main {
 .card:hover { border-color: var(--blue-100); transform: translateY(-1px); }
 .card-head { margin-bottom: 18px; }
 .card h2 {
+  font-family: var(--font-display);
   font-size: 14px; font-weight: 600; letter-spacing: -0.1px;
   color: var(--ink); margin-bottom: 4px;
 }
@@ -396,6 +398,7 @@ main {
 }
 .kpi-label .kpi-icon { display: none; }
 .kpi-value {
+  font-family: var(--font-display);
   font-size: 44px; font-weight: 700; line-height: 1; color: var(--ink);
   letter-spacing: -1.6px; font-variant-numeric: tabular-nums;
 }
@@ -472,6 +475,7 @@ main {
   pointer-events: none;
 }
 .donut-center-val {
+  font-family: var(--font-display);
   font-size: clamp(28px, 4.2vw, 44px);
   font-weight: 800; line-height: 1;
   color: var(--blue-700);
@@ -819,7 +823,8 @@ main {
   margin-bottom: 12px;
 }
 .hero-mega-val {
-  font-size: clamp(72px, 9vw, 112px);
+  font-family: var(--font-display);
+  font-size: clamp(56px, 8vw, 112px);
   font-weight: 800; line-height: 0.95;
   letter-spacing: -3.2px;
   color: var(--blue-700);
@@ -850,6 +855,7 @@ main {
 }
 .hero-satellite:last-child { border-bottom: none; padding-bottom: 0; }
 .hero-satellite-val {
+  font-family: var(--font-display);
   font-size: 32px; font-weight: 700;
   color: var(--ink); letter-spacing: -0.8px;
   font-variant-numeric: tabular-nums;
@@ -967,7 +973,9 @@ main {
 }
 .cmdk-footer span { display: inline-flex; align-items: center; gap: 4px; }
 
-[data-lucide], .icon-svg { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
+[data-lucide], .icon-svg { width: 16px; height: 16px; stroke-width: 1.75; flex-shrink: 0; }
+.sidebar-link .icon-svg, .cmdk-item .cmdk-item-icon { stroke-width: 1.6; }
+.sidebar-link.active .icon-svg { stroke-width: 1.85; }
 
 /* ════════ ENTRANCE ════════ */
 .kpi, .card { animation: card-enter 0.5s var(--ease-out) both; }
@@ -1008,17 +1016,39 @@ main {
   .sidebar-section { flex-direction: row; flex-wrap: wrap; gap: 4px; }
   .sidebar-section-label { display: none; }
   .sidebar-link { padding: 6px 10px; font-size: 12px; }
+  .sidebar-link span:not(.icon-svg) { display: none; }
   .sidebar-footer {
     padding: 0; border-top: none;
     flex-direction: row; gap: 8px; align-items: center; margin-left: auto;
   }
+  .sidebar-footer .cmdk-hint { display: none; }
   .sidebar-footer .lang-switch, .sidebar-footer .status-pill { width: auto; }
   .sidebar-host { display: none; }
-  main, .footer { margin-left: 0; padding-left: 18px; padding-right: 18px; }
+  main, .footer { margin-left: 0; padding: 28px 18px 48px; }
+  main { gap: 28px; }
   .kpi-row { grid-template-columns: 1fr 1fr; gap: 12px; }
   .kpi-value { font-size: 30px; }
   .agent-grid { grid-template-columns: 1fr; }
   .drawer { width: 100%; }
+  .hero-strip { gap: 24px; }
+  .hero-mega-val .unit { font-size: clamp(22px, 6vw, 32px); }
+}
+@media (max-width: 560px) {
+  .kpi-row { grid-template-columns: 1fr; }
+  .hero-mega-val { font-size: clamp(48px, 14vw, 72px); letter-spacing: -2px; }
+  .hero-mega-lbl { font-size: 13px; }
+  .hero-satellites { gap: 14px; }
+  .hero-satellite { padding-bottom: 12px; }
+  .hero-satellite-val { font-size: 26px; min-width: 56px; }
+  .card { padding: 22px 20px; }
+  .card-head h2 { font-size: 13px; }
+  .feed-table { font-size: 12px; }
+  .feed-table th, .feed-table td { padding: 9px 10px; }
+  .feed-table .snippet-cell { max-width: 160px; }
+  .arch-hero { padding: 24px 20px; }
+  .arch-hero-title { font-size: 24px; }
+  .arch-hero-metrics { grid-template-columns: 1fr 1fr; min-width: 0; }
+  .scenario-btn { font-size: 12px; padding: 8px 12px 8px 11px; }
 }
 
 /* ════════ POLISH (skeletons + toasts + empty state) ════════ */
