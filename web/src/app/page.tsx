@@ -147,30 +147,34 @@ export default function DashboardPage() {
 
       <main>
         <section className="hero-strip">
-          <div className="hero-strip-item">
-            <div className="hero-strip-val">
-              {summary ? summary.total_interactions.toLocaleString() : "—"}
+          <div className="hero-mega">
+            <div className="hero-mega-eyebrow">Compliance rate · last 24h</div>
+            <div className="hero-mega-val">
+              {summary ? summary.compliance_rate.toFixed(1) : "—"}
+              <span className="unit">%</span>
             </div>
-            <div className="hero-strip-lbl">interactions audited</div>
-          </div>
-          <div className="hero-strip-divider" />
-          <div className="hero-strip-item">
-            <div className="hero-strip-val">
-              {summary ? `${summary.compliance_rate.toFixed(1)}%` : "—"}
+            <div className="hero-mega-lbl">
+              Continuous compliance auditing for enterprise AI across EU AI Act,
+              GDPR, DORA, PII and prompt injection.
             </div>
-            <div className="hero-strip-lbl">compliance rate · 24h</div>
           </div>
-          <div className="hero-strip-divider" />
-          <div className="hero-strip-item">
-            <div className="hero-strip-val critical">
-              {summary ? summary.violations.critical : "—"}
+          <div className="hero-satellites">
+            <div className="hero-satellite">
+              <div className="hero-satellite-val">
+                {summary ? summary.total_interactions.toLocaleString() : "—"}
+              </div>
+              <div className="hero-satellite-lbl">interactions audited</div>
             </div>
-            <div className="hero-strip-lbl">critical blocked at gateway</div>
-          </div>
-          <div className="hero-strip-divider" />
-          <div className="hero-strip-item">
-            <div className="hero-strip-val">5</div>
-            <div className="hero-strip-lbl">regulations covered</div>
+            <div className="hero-satellite">
+              <div className="hero-satellite-val critical">
+                {summary ? summary.violations.critical : "—"}
+              </div>
+              <div className="hero-satellite-lbl">critical blocked at gateway</div>
+            </div>
+            <div className="hero-satellite">
+              <div className="hero-satellite-val">5</div>
+              <div className="hero-satellite-lbl">regulations covered</div>
+            </div>
           </div>
         </section>
 
