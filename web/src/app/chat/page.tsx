@@ -13,7 +13,8 @@ import { Mic, RotateCcw, Send, Type } from "lucide-react";
 import Topbar from "@/components/chrome/Topbar";
 import { apiGet, apiPost, type Finding, type Severity } from "@/lib/api";
 import { useT } from "@/lib/i18n";
-import { REG_LABELS } from "@/lib/format";
+import { REG_LABELS, REG_TOAST_ICONS } from "@/lib/format";
+import { toast } from "@/components/ui/toast";
 
 /* ─────────────── Web Speech API minimal typings ─────────────── */
 interface SpeechRecognitionAlternative { readonly transcript: string; readonly confidence: number; }
@@ -117,12 +118,6 @@ export default function ChatPage() {
   const [micLevel, setMicLevel] = useState(0);
   const [partialText, setPartialText] = useState("");
 
-  /* alert banner */
-  const [alert, setAlert] = useState<
-    | { severity: Severity; icon: string; title: string; detail: string }
-    | null
-  >(null);
-
   /* refs */
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -135,7 +130,9 @@ export default function ChatPage() {
   const finalTextRef = useRef("");
   const interimTextRef = useRef("");
   const voiceLangRef = useRef(voiceLang);
-  const alertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // `true` when the last-message sentinel is visible — used by the toast
+  // fallback so we only notify the user when the verdict pill is off-screen.
+  const endInViewRef = useRef(true);
 
   useEffect(() => { isRecordingRef.current = isRecording; }, [isRecording]);
   useEffect(() => { voiceLangRef.current = voiceLang; }, [voiceLang]);
@@ -167,34 +164,52 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length, isThinking, partialText]);
 
-  /* ─────────────── Alert helpers ─────────────── */
-  const hideAlert = useCallback(() => {
-    setAlert(null);
-    if (alertTimerRef.current) { clearTimeout(alertTimerRef.current); alertTimerRef.current = null; }
+  /* IntersectionObserver: track whether the last-message sentinel is in view.
+     The toast-fallback for violations only fires when it's NOT — i.e. when the
+     user has scrolled up far enough that the verdict pill is off-screen. */
+  useEffect(() => {
+    const el = messagesEndRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          endInViewRef.current = entry.isIntersecting;
+        }
+      },
+      { root: null, threshold: 0, rootMargin: "-80px 0px 0px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
-  const showAlert = useCallback((data: ChatResponse) => {
+  /* Conditional notification: if the verdict pill is already in view (most
+     common case while chatting), the inline pill is enough — no toast. If the
+     user has scrolled up and is not looking at the latest reply, fire a toast
+     with an action button that scrolls them back. */
+  const notifyIfOffscreen = useCallback((data: ChatResponse) => {
+    if (endInViewRef.current) return;
     const first = data.findings?.[0];
-    let icon = "🚨";
-    let title = `${data.severity.toUpperCase()} · ${data.action_taken}`;
-    let detail = "";
-    if (first) {
-      const reg = REG_LABELS[first.regulation] ?? first.regulation;
-      title = `${reg.toUpperCase()} ${t("alert.detected")}`;
-      icon = REG_ICON[first.regulation] ?? "🚨";
-      const r = first.rationale ?? "";
-      detail = r.length > 200 ? `${r.slice(0, 200)}…` : r;
-    }
-    setAlert({ severity: data.severity, icon, title, detail });
-    if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
-    alertTimerRef.current = setTimeout(() => setAlert(null), 8000);
-  }, [t]);
+    const reg = first ? (REG_LABELS[first.regulation] ?? first.regulation) : "Unknown";
+    const icon = first ? REG_TOAST_ICONS[first.regulation] : undefined;
+    toast.show({
+      variant: data.severity === "critical" ? "error" : "warning",
+      title: `${data.severity.toUpperCase()} · ${reg}`,
+      description: (() => {
+        const r = first?.rationale ?? data.bot_reply ?? "";
+        return r.length > 180 ? `${r.slice(0, 180)}…` : r;
+      })(),
+      icon,
+      button: {
+        title: "Scroll to reply",
+        onClick: () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }),
+      },
+    });
+  }, []);
 
   /* ─────────────── Send a message (shared by text + voice) ─────────────── */
   const sendMessage = useCallback(async (text: string) => {
     if (isThinking || !text.trim()) return;
     setIsThinking(true);
-    hideAlert();
 
     const userId = `u-${Date.now()}`;
     const thinkingId = `b-${Date.now()}`;
@@ -236,7 +251,9 @@ export default function ChatPage() {
           window.speechSynthesis.speak(utter);
         } catch {/* ignore */}
       }
-      if (data.severity === "critical" || data.severity === "warning") showAlert(data);
+      if (data.severity === "critical" || data.severity === "warning") {
+        notifyIfOffscreen(data);
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setMessages((prev) =>
@@ -250,7 +267,7 @@ export default function ChatPage() {
       setIsThinking(false);
       inputRef.current?.focus();
     }
-  }, [isThinking, hideAlert, profile, sessionId, mode, showAlert]);
+  }, [isThinking, profile, sessionId, mode, notifyIfOffscreen]);
 
   /* ─────────────── Composer (text mode) ─────────────── */
   const onTextSubmit = (e: React.FormEvent) => {
@@ -269,9 +286,8 @@ export default function ChatPage() {
   const resetChat = useCallback(() => {
     setSessionId(null);
     setMessages([]);
-    hideAlert();
     setPartialText("");
-  }, [hideAlert]);
+  }, []);
 
   const onProfileChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setProfile(e.target.value);
@@ -388,17 +404,6 @@ export default function ChatPage() {
   return (
     <>
       <Topbar pageKey="chat" />
-
-      {alert && (
-        <div className={`alert-banner show ${alert.severity}`}>
-          <div className="alert-icon">{alert.icon}</div>
-          <div className="alert-text">
-            <div className="alert-title">{alert.title}</div>
-            <div className="alert-detail">{alert.detail}</div>
-          </div>
-          <button className="alert-close" type="button" onClick={hideAlert}>✕</button>
-        </div>
-      )}
 
       <main className="chat-shell">
         <header className="chat-topbar">
