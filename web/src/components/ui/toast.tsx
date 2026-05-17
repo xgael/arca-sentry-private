@@ -37,12 +37,24 @@ interface ToastCallOptions {
   description?: string;
 }
 
+interface PromiseToastSpec {
+  title: string;
+  description?: string;
+}
+
+interface PromiseToastOptions<T> {
+  loading: PromiseToastSpec;
+  success: PromiseToastSpec | ((data: T) => PromiseToastSpec);
+  error?: PromiseToastSpec | ((err: unknown) => PromiseToastSpec);
+}
+
 interface ToastContextValue {
   toast:   (opts: ToastCallOptions) => void;
   success: (title: string, description?: string) => void;
   error:   (title: string, description?: string) => void;
   warning: (title: string, description?: string) => void;
   info:    (title: string, description?: string) => void;
+  promise: <T>(p: Promise<T>, opts: PromiseToastOptions<T>) => Promise<T>;
 }
 
 // sileo.* es singleton global — el context es estable.
@@ -54,6 +66,26 @@ const toastApi: ToastContextValue = {
   error:   (title, description) => sileo.error({ title, description }),
   warning: (title, description) => sileo.warning({ title, description }),
   info:    (title, description) => sileo.info({ title, description }),
+  promise: <T,>(p: Promise<T>, opts: PromiseToastOptions<T>) => {
+    sileo.promise(p, {
+      loading: { title: opts.loading.title, description: opts.loading.description },
+      success: (data: T) => {
+        const spec = typeof opts.success === "function" ? opts.success(data) : opts.success;
+        return { title: spec.title, description: spec.description };
+      },
+      error: (err: unknown) => {
+        const fallback: PromiseToastSpec = {
+          title: "Request failed",
+          description: err instanceof Error ? err.message : String(err),
+        };
+        const spec = opts.error
+          ? (typeof opts.error === "function" ? opts.error(err) : opts.error)
+          : fallback;
+        return { title: spec.title, description: spec.description };
+      },
+    });
+    return p;
+  },
 };
 
 const ToastContext = React.createContext<ToastContextValue>(toastApi);

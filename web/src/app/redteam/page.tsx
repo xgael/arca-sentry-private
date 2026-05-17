@@ -17,6 +17,7 @@ import Topbar from "@/components/chrome/Topbar";
 import { apiGet, apiPost, apiUrl } from "@/lib/api";
 import { useT } from "@/lib/i18n";
 import { escapeHtml } from "@/lib/format";
+import { toast } from "@/components/ui/toast";
 
 /* ─────────────── API types ─────────────── */
 
@@ -188,20 +189,35 @@ export default function RedTeamPage() {
       );
       startProgress();
       try {
-        const data = await apiPost<RedTeamReport>("/redteam/run", {
-          agent_id: agent.id,
-          max_attacks: 12,
-        });
+        const data = await toast.promise(
+          apiPost<RedTeamReport>("/redteam/run", {
+            agent_id: agent.id,
+            max_attacks: 12,
+          }),
+          {
+            loading: {
+              title: `Pen-testing ${agent.name}`,
+              description: "Running 12 attacks · up to 30s",
+            },
+            success: (r) => ({
+              title: `Score: ${r.summary.resilience_score}/100`,
+              description: `${r.summary.vulnerable}/${r.summary.total} attacks landed`,
+            }),
+            error: (err) => ({
+              title: "Pen test failed",
+              description: err instanceof Error ? err.message : String(err),
+            }),
+          },
+        );
         stopProgress();
         setTimeout(() => {
           setRunning(false);
           setTargetName(agent.name);
           setReport(data);
         }, 350);
-      } catch (e) {
+      } catch {
         if (progressTimerRef.current) clearInterval(progressTimerRef.current);
         setRunning(false);
-        alert(`Pen test failed: ${e instanceof Error ? e.message : String(e)}`);
       }
     },
     [startProgress, stopProgress],
@@ -220,23 +236,38 @@ export default function RedTeamPage() {
       setRunningSub("Sending attacks against your external endpoint.");
       startProgress();
       try {
-        const data = await apiPost<RedTeamReport>("/redteam/run", {
-          provider: custom.provider,
-          model: custom.model,
-          api_key: custom.apiKey,
-          system_prompt: custom.systemPrompt || null,
-          max_attacks: 12,
-        });
+        const data = await toast.promise(
+          apiPost<RedTeamReport>("/redteam/run", {
+            provider: custom.provider,
+            model: custom.model,
+            api_key: custom.apiKey,
+            system_prompt: custom.systemPrompt || null,
+            max_attacks: 12,
+          }),
+          {
+            loading: {
+              title: `Pen-testing custom ${custom.provider}/${custom.model}`,
+              description: "Running attacks · up to 30s",
+            },
+            success: (r) => ({
+              title: `Score: ${r.summary.resilience_score}/100`,
+              description: `${r.summary.vulnerable}/${r.summary.total} attacks landed`,
+            }),
+            error: (err) => ({
+              title: "Pen test failed",
+              description: err instanceof Error ? err.message : String(err),
+            }),
+          },
+        );
         stopProgress();
         setTimeout(() => {
           setRunning(false);
           setTargetName(`${custom.provider}/${custom.model}`);
           setReport(data);
         }, 350);
-      } catch (err) {
+      } catch {
         if (progressTimerRef.current) clearInterval(progressTimerRef.current);
         setRunning(false);
-        alert(`Pen test failed: ${err instanceof Error ? err.message : String(err)}`);
       }
     },
     [custom, startProgress, stopProgress],

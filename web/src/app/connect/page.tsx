@@ -4,6 +4,7 @@ import { useState } from "react";
 import Topbar from "@/components/chrome/Topbar";
 import Card from "@/components/ui/Card";
 import { apiPost } from "@/lib/api";
+import { toast } from "@/components/ui/toast";
 
 type Channel = "proxy" | "http" | "web_url" | "whatsapp" | "facebook";
 
@@ -43,22 +44,37 @@ export default function ConnectPage() {
 
   async function submit() {
     if (!name.trim()) {
-      alert("Please give the agent a name.");
+      toast.warning("Missing name", "Please give the agent a name.");
       return;
     }
     setSubmitting(true);
     setStatus("Registering…");
     setResult(null);
     try {
-      const r = await apiPost<RegisterResponse>("/agents/register", {
-        name: name.trim(),
-        vertical,
-        icon,
-        description: desc.trim(),
-        connection: channel,
-        endpoint_url: endpoint || website || null,
-        upstream_provider: channel === "proxy" ? upstream : null,
-      });
+      const r = await toast.promise(
+        apiPost<RegisterResponse>("/agents/register", {
+          name: name.trim(),
+          vertical,
+          icon,
+          description: desc.trim(),
+          connection: channel,
+          endpoint_url: endpoint || website || null,
+          upstream_provider: channel === "proxy" ? upstream : null,
+        }),
+        {
+          loading: { title: `Registering ${name.trim()}…`, description: "Provisioning audit pipeline" },
+          success: (data) => ({
+            title: data.pending ? "Saved · channel in beta" : "Agent registered",
+            description: data.pending
+              ? `Registered as ${data.agent_id}; activates when ${channel} ships.`
+              : `Registered as ${data.agent_id}`,
+          }),
+          error: (err) => ({
+            title: "Registration failed",
+            description: err instanceof Error ? err.message : String(err),
+          }),
+        },
+      );
       const url = typeof window !== "undefined" ? `${window.location.origin}/v1/chat/completions` : "";
       const proxyHtml = r.proxy_endpoint || channel === "proxy"
         ? `<p><strong>Your proxy endpoint:</strong></p><code>${url}</code>

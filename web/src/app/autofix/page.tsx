@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Topbar from "@/components/chrome/Topbar";
 import Card from "@/components/ui/Card";
 import { apiGet, apiPost } from "@/lib/api";
+import { toast } from "@/components/ui/toast";
 
 interface AutofixSettings {
   enabled: boolean;
@@ -71,26 +72,36 @@ export default function AutofixPage() {
 
   async function doRewrite() {
     if (!original.trim() || !rationale.trim()) {
-      alert("Need both the original response and a rationale.");
+      toast.warning("Missing input", "Need both the original response and a rationale.");
       return;
     }
     setRunning(true);
     try {
-      const d = await apiPost<RewriteResponse>("/autofix/rewrite", {
-        original_response: original.trim(),
-        finding_rationale: rationale.trim(),
-        regulation,
-        article: article || null,
-        language_hint: lang || null,
-      });
+      const d = await toast.promise(
+        apiPost<RewriteResponse>("/autofix/rewrite", {
+          original_response: original.trim(),
+          finding_rationale: rationale.trim(),
+          regulation,
+          article: article || null,
+          language_hint: lang || null,
+        }),
+        {
+          loading: { title: "Rewriting with Gemini Pro…", description: "2-4 seconds" },
+          success: () => ({
+            title: "Rewrite ready",
+            description: "Review the before/after diff below.",
+          }),
+          error: (err) => ({
+            title: "Rewrite failed",
+            description: err instanceof Error ? err.message : String(err),
+          }),
+        },
+      );
       setResult(d);
       setTotal((n) => n + 1);
       await loadHistory();
-    } catch (e) {
-      alert(`Rewrite failed: ${e instanceof Error ? e.message : String(e)}`);
-    } finally {
-      setRunning(false);
-    }
+    } catch {/* error toast already shown */}
+    finally { setRunning(false); }
   }
 
   return (
