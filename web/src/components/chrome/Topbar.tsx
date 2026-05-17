@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Ticket,
-  MessageSquare,
-  Mic,
+  MessagesSquare,
   Target,
   PlusCircle,
   Wand,
@@ -19,8 +18,7 @@ import { apiGet } from "@/lib/api";
 export type PageKey =
   | "dashboard"
   | "tickets"
-  | "playground"
-  | "voice"
+  | "chat"
   | "redteam"
   | "connect"
   | "autofix"
@@ -73,8 +71,7 @@ export default function Topbar({ pageKey }: TopbarProps) {
     {
       label: t("nav.test", "Test"),
       items: [
-        { key: "playground", href: "/playground", label: t("nav.playground"), icon: MessageSquare },
-        { key: "voice", href: "/voice", label: t("nav.voice"), icon: Mic },
+        { key: "chat", href: "/chat", label: t("nav.chat", "Chat"), icon: MessagesSquare },
         { key: "redteam", href: "/redteam", label: t("nav.redteam"), icon: Target },
       ],
     },

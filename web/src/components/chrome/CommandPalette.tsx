@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Ticket,
-  MessageSquare,
-  Mic,
+  MessagesSquare,
   Target,
   PlusCircle,
   Wand,
@@ -95,8 +94,7 @@ export default function CommandPalette() {
     const nav: CommandItem[] = [
       { id: "nav-dashboard", group: "Navigate", label: "Dashboard", hint: "Overview · KPIs · live feed", icon: LayoutDashboard, run: goto("/") },
       { id: "nav-tickets", group: "Navigate", label: "Tickets", hint: "Compliance remediation queue", icon: Ticket, run: goto("/tickets") },
-      { id: "nav-playground", group: "Navigate", label: "Playground", hint: "Chat with vulnerable bot", icon: MessageSquare, run: goto("/playground") },
-      { id: "nav-voice", group: "Navigate", label: "Voice", hint: "Speak to a voice bot", icon: Mic, run: goto("/voice") },
+      { id: "nav-chat", group: "Navigate", label: "Chat", hint: "Talk to the vulnerable bot (text + voice)", icon: MessagesSquare, run: goto("/chat") },
       { id: "nav-redteam", group: "Navigate", label: "Red Team", hint: "Run pen-test attack suite", icon: Target, run: goto("/redteam") },
       { id: "nav-connect", group: "Navigate", label: "Connect agent", hint: "Onboard a new AI agent", icon: PlusCircle, run: goto("/connect") },
       { id: "nav-autofix", group: "Navigate", label: "Auto-Fix", hint: "Rewrite flagged responses", icon: Wand, run: goto("/autofix") },
