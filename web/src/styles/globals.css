@@ -732,6 +732,132 @@ main {
 }
 .footer a { color: var(--blue-700); }
 
+/* ════════ HERO STRIP (dashboard title-card) ════════ */
+.hero-strip {
+  display: flex; align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, var(--blue-50) 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px 28px;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+.hero-strip-item { display: flex; flex-direction: column; min-width: 140px; }
+.hero-strip-val {
+  font-size: 28px; font-weight: 800; color: var(--blue-700);
+  letter-spacing: -0.6px; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.hero-strip-val.critical { color: var(--red); }
+.hero-strip-lbl {
+  font-size: 11px; color: var(--ink-3);
+  margin-top: 6px; font-weight: 500;
+}
+.hero-strip-divider {
+  width: 1px; align-self: stretch;
+  background: var(--line);
+  margin: 4px 0;
+}
+@media (max-width: 880px) {
+  .hero-strip-divider { display: none; }
+  .hero-strip { gap: 14px 22px; }
+}
+
+/* ════════ COMMAND PALETTE (⌘K) ════════ */
+.cmdk-hint {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 8px 10px;
+  background: var(--bg-elev); border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-size: 11px; color: var(--ink-3);
+  cursor: default;
+}
+.kbd-row { display: inline-flex; gap: 2px; }
+.cmdk-hint kbd, .cmdk-footer kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px; font-weight: 600;
+  background: white; border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: var(--r-xs);
+  padding: 1px 5px; min-width: 16px;
+  color: var(--ink-2);
+}
+
+.cmdk-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(11, 26, 51, 0.45);
+  backdrop-filter: blur(6px);
+  z-index: 400;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 12vh;
+  animation: cmdk-fade-in 160ms var(--ease-out);
+}
+@keyframes cmdk-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.cmdk-panel {
+  width: min(640px, 92vw);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column;
+  max-height: 70vh;
+  overflow: hidden;
+  animation: cmdk-rise 200ms var(--ease-out);
+}
+@keyframes cmdk-rise {
+  from { transform: translateY(-12px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.cmdk-input-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.cmdk-search-icon { width: 18px; height: 18px; color: var(--ink-4); }
+.cmdk-input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font: inherit; font-size: 15px; color: var(--ink);
+}
+.cmdk-input::placeholder { color: var(--ink-4); }
+.cmdk-kbd {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px; color: var(--ink-3);
+  background: var(--bg-elev); border: 1px solid var(--line);
+  padding: 2px 6px; border-radius: var(--r-xs);
+}
+
+.cmdk-list { flex: 1; overflow-y: auto; padding: 6px 8px; }
+.cmdk-empty { padding: 24px; color: var(--ink-3); font-size: 13px; text-align: center; }
+.cmdk-group {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--ink-4);
+  padding: 10px 10px 4px;
+}
+.cmdk-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 9px 10px;
+  border: none; background: transparent;
+  border-radius: var(--r-sm);
+  font: inherit; font-size: 13px; color: var(--ink);
+  cursor: pointer; text-align: left;
+}
+.cmdk-item.active { background: var(--blue-50); }
+.cmdk-item-icon { width: 16px; height: 16px; color: var(--ink-3); flex-shrink: 0; }
+.cmdk-item.active .cmdk-item-icon { color: var(--blue-700); }
+.cmdk-item-label { font-weight: 500; }
+.cmdk-item-hint {
+  margin-left: auto;
+  font-size: 11px; color: var(--ink-4);
+}
+
+.cmdk-footer {
+  display: flex; gap: 16px; justify-content: flex-end;
+  padding: 8px 14px; border-top: 1px solid var(--line);
+  background: var(--bg-elev);
+  font-size: 11px; color: var(--ink-3);
+}
+.cmdk-footer span { display: inline-flex; align-items: center; gap: 4px; }
+
 [data-lucide], .icon-svg { width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0; }
 
 /* ════════ ENTRANCE ════════ */

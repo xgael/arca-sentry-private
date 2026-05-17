@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { I18nProvider } from "@/lib/i18n";
 import { ToastProvider } from "@/components/ui/Toast";
+import CommandPalette from "@/components/chrome/CommandPalette";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -28,7 +29,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
         <I18nProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            {children}
+            <CommandPalette />
+          </ToastProvider>
         </I18nProvider>
       </body>
     </html>

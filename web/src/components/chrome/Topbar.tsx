@@ -131,6 +131,10 @@ export default function Topbar({ pageKey }: TopbarProps) {
       </nav>
 
       <div className="sidebar-footer">
+        <div className="cmdk-hint" aria-hidden="true">
+          <span>Quick search</span>
+          <span className="kbd-row"><kbd>⌘</kbd><kbd>K</kbd></span>
+        </div>
         <div className={`status-pill ${live ? "live" : ""}`}>
           <span className="dot" />
           <span className="status-text">

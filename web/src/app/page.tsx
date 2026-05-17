@@ -146,6 +146,34 @@ export default function DashboardPage() {
       <Topbar pageKey="dashboard" />
 
       <main>
+        <section className="hero-strip">
+          <div className="hero-strip-item">
+            <div className="hero-strip-val">
+              {summary ? summary.total_interactions.toLocaleString() : "—"}
+            </div>
+            <div className="hero-strip-lbl">interactions audited</div>
+          </div>
+          <div className="hero-strip-divider" />
+          <div className="hero-strip-item">
+            <div className="hero-strip-val">
+              {summary ? `${summary.compliance_rate.toFixed(1)}%` : "—"}
+            </div>
+            <div className="hero-strip-lbl">compliance rate · 24h</div>
+          </div>
+          <div className="hero-strip-divider" />
+          <div className="hero-strip-item">
+            <div className="hero-strip-val critical">
+              {summary ? summary.violations.critical : "—"}
+            </div>
+            <div className="hero-strip-lbl">critical blocked at gateway</div>
+          </div>
+          <div className="hero-strip-divider" />
+          <div className="hero-strip-item">
+            <div className="hero-strip-val">5</div>
+            <div className="hero-strip-lbl">regulations covered</div>
+          </div>
+        </section>
+
         <section className="kpi-row">
           <div className="kpi kpi-primary">
             <div className="kpi-label">
