@@ -1,0 +1,252 @@
+/* Voice page extras (layered on style.css + playground.css). */
+
+.voice-hero {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  padding: 24px 28px;
+}
+.voice-hero-text { flex: 1; }
+.voice-hero-text h2 { font-size: 18px; margin-bottom: 8px; color: var(--ink); text-transform: none; letter-spacing: 0; border: 0; }
+.voice-hero-text p { font-size: 14px; color: var(--ink-2); line-height: 1.6; margin-top: 4px; }
+.voice-hero-text .small { font-size: 12px; }
+.voice-hero-controls { display: flex; flex-direction: column; align-items: center; gap: 12px; flex-shrink: 0; }
+.voice-lang { width: 100%; min-width: 160px; }
+
+/* Botón base: blanco, con label e icono pintados por gradient azul.
+   - background-clip: text en el label → letras gradient.
+   - mask-image en el icon → silueta SVG de mic pintada por el gradient
+     (el emoji 🎙 del HTML queda oculto con font-size: 0, sin tocar markup). */
+.mic-btn {
+  position: relative;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 1px solid rgba(15, 26, 46, 0.06);
+  background: #ffffff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow:
+    0 10px 28px -8px rgba(37, 99, 235, 0.28),
+    0 2px 6px rgba(15, 26, 46, 0.06);
+  transition: transform 0.12s, box-shadow 0.12s;
+  font: inherit;
+}
+.mic-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 32px -8px rgba(37, 99, 235, 0.40),
+    0 4px 10px rgba(15, 26, 46, 0.08);
+}
+.mic-btn:active { transform: translateY(0); }
+
+.mic-btn .mic-icon {
+  font-size: 0;  /* oculta el emoji 🎙 — el icono se dibuja con mask */
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(140deg, var(--blue-500) 0%, var(--blue-700) 100%);
+  -webkit-mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z'/%3E%3Cpath d='M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z'/%3E%3C/svg%3E") center / 70% no-repeat;
+          mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z'/%3E%3Cpath d='M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z'/%3E%3C/svg%3E") center / 70% no-repeat;
+}
+
+.mic-btn .mic-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: linear-gradient(140deg, var(--blue-500) 0%, var(--blue-700) 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+.mic-btn .mic-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 3px solid var(--blue-500);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Estado .recording: bg rojo solido, texto/icon blancos ─────────── */
+.mic-btn.recording {
+  background: linear-gradient(140deg, var(--red) 0%, #7a0014 100%);
+  border-color: transparent;
+  box-shadow: 0 8px 24px rgba(176, 0, 32, 0.4);
+}
+.mic-btn.recording .mic-icon { background: white; }
+.mic-btn.recording .mic-label {
+  background: none;
+  -webkit-background-clip: initial;
+          background-clip: initial;
+  color: white;
+}
+.mic-btn.recording .mic-ring {
+  border-color: var(--red);
+  opacity: 1;
+  animation: ring-pulse 1.4s ease-out infinite;
+}
+
+/* ── Estado .speaking: bg azul oscuro, icon cambia a speaker ─────── */
+.mic-btn.speaking {
+  background: linear-gradient(140deg, var(--blue) 0%, #0e2a52 100%);
+  border-color: transparent;
+  box-shadow: 0 8px 24px rgba(31, 78, 140, 0.4);
+  animation: speaker-pulse 1.2s ease-in-out infinite;
+}
+.mic-btn.speaking .mic-icon {
+  background: white;
+  -webkit-mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z'/%3E%3Cpath d='M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z'/%3E%3Cpath d='M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z'/%3E%3C/svg%3E") center / 70% no-repeat;
+          mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z'/%3E%3Cpath d='M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z'/%3E%3Cpath d='M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z'/%3E%3C/svg%3E") center / 70% no-repeat;
+}
+.mic-btn.speaking .mic-label {
+  background: none;
+  -webkit-background-clip: initial;
+          background-clip: initial;
+  color: white;
+}
+@keyframes speaker-pulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 8px 24px rgba(31, 78, 140, 0.4); }
+  50%      { transform: scale(1.04); box-shadow: 0 12px 32px rgba(31, 78, 140, 0.55); }
+}
+@keyframes ring-pulse {
+  0%   { transform: scale(1);    opacity: 1; }
+  100% { transform: scale(1.5);  opacity: 0; }
+}
+
+.transcript-pane {
+  display: flex;
+  flex-direction: column;
+  height: 460px;
+  padding: 18px 20px;
+}
+.transcript-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+.transcript-head h2 { margin: 0; }
+.transcript-state {
+  font-size: 11px;
+  color: var(--ink-3);
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg-elev);
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.transcript-state.live { color: var(--red); border-color: var(--red); background: var(--red-bg); }
+
+.transcript-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.transcript-line {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 86%;
+}
+.transcript-line.user {
+  background: #f97316 !important;
+  color: white !important;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 1px 3px rgba(249, 115, 22, 0.25);
+}
+.transcript-line.user .meta {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.transcript-line.user.partial {
+  background: #ffedd5 !important;
+  color: #7c2d12 !important;
+  font-style: italic;
+  border: 1.5px dashed #fb923c;
+  box-shadow: none;
+}
+.transcript-line.user.partial .meta {
+  color: #9a3412 !important;
+}
+.transcript-line.bot {
+  background: var(--bg-elev);
+  color: var(--ink);
+  align-self: flex-start;
+  border: 1px solid var(--line);
+}
+.transcript-line .meta {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--ink-3);
+  margin-bottom: 4px;
+}
+
+/* Mic level meter — gives clear visual feedback while recording */
+.mic-level-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.mic-level-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  color: var(--gold-d);
+}
+.mic-level-bar {
+  width: 120px; height: 8px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.mic-level-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--green), var(--gold) 60%, var(--red));
+  transition: width 0.06s linear;
+}
+.mic-level-state {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-3);
+  min-width: 60px;
+}
+
+.voice-suggestions { padding: 18px 24px; }
+.suggestion-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.suggestion-chip {
+  padding: 8px 14px;
+  border: 1.5px solid var(--gold);
+  background: var(--bg-elev);
+  color: var(--gold-d);
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.lang-tag {
+  font-size: 9px;
+  background: var(--gold-d);
+  color: white;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-weight: 700;
+}
