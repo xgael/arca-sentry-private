@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { Toaster } from "sonner";
 import { I18nProvider } from "@/lib/i18n";
+import { ToastProvider } from "@/components/ui/toast";
 import CommandPalette from "@/components/chrome/CommandPalette";
 import "@/styles/globals.css";
 
@@ -29,17 +29,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
         <I18nProvider>
-          {children}
-          <CommandPalette />
-          <Toaster
-            position="top-right"
-            richColors
-            closeButton
-            expand
-            visibleToasts={4}
-            offset={24}
-            toastOptions={{ duration: 5500 }}
-          />
+          <ToastProvider position="top-right">
+            {children}
+            <CommandPalette />
+          </ToastProvider>
         </I18nProvider>
       </body>
     </html>

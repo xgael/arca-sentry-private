@@ -12,7 +12,7 @@ import DonutCompliance from "@/components/charts/DonutCompliance";
 import TimelineChart from "@/components/charts/TimelineChart";
 import RegsBar from "@/components/charts/RegsBar";
 import Sparkline from "@/components/charts/Sparkline";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { useT } from "@/lib/i18n";
 import { apiGet, apiPost, type FeedItem, type SummaryStats, type TimelineData, type RegStats, type Severity } from "@/lib/api";
 import { CHANNEL_ICONS, LANG_TAG, REG_LABELS, formatTime } from "@/lib/format";
@@ -71,9 +71,9 @@ export default function DashboardPage() {
             const title = `${i.severity.toUpperCase()} · ${reg}`;
             const description = i.response_preview || "New violation detected.";
             if (i.severity === "critical") {
-              toast.error(title, { description });
+              toast.error(title, description);
             } else {
-              toast.warning(title, { description });
+              toast.warning(title, description);
             }
           } else {
             knownSeqs.current.add(i.seq);
