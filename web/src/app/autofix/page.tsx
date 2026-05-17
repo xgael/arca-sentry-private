@@ -1,0 +1,240 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import Topbar from "@/components/chrome/Topbar";
+import Card from "@/components/ui/Card";
+import { apiGet, apiPost } from "@/lib/api";
+
+interface AutofixSettings {
+  enabled: boolean;
+  min_severity: "warning" | "critical";
+}
+
+interface AutofixHistory {
+  items: Array<{
+    record_id: string;
+    created_at: string;
+    regulation: string;
+    article?: string | null;
+    original: string;
+    rewritten: string;
+  }>;
+}
+
+interface RewriteResponse {
+  original: string;
+  rewritten: string;
+}
+
+export default function AutofixPage() {
+  const [enabled, setEnabled] = useState(false);
+  const [severity, setSeverity] = useState<"warning" | "critical">("warning");
+  const [total, setTotal] = useState(0);
+
+  const [original, setOriginal] = useState("");
+  const [rationale, setRationale] = useState("");
+  const [regulation, setRegulation] = useState("eu_ai_act");
+  const [article, setArticle] = useState("");
+  const [lang, setLang] = useState("");
+  const [running, setRunning] = useState(false);
+
+  const [result, setResult] = useState<RewriteResponse | null>(null);
+  const [history, setHistory] = useState<AutofixHistory["items"]>([]);
+
+  const loadHistory = useCallback(async () => {
+    try {
+      const d = await apiGet<AutofixHistory>("/autofix/history?limit=20");
+      setHistory(d.items ?? []);
+    } catch {/* ignore */}
+  }, []);
+
+  useEffect(() => {
+    apiGet<AutofixSettings>("/autofix/settings")
+      .then((d) => {
+        setEnabled(d.enabled);
+        setSeverity(d.min_severity ?? "warning");
+      })
+      .catch(() => {});
+    void loadHistory();
+    const id = setInterval(loadHistory, 8000);
+    return () => clearInterval(id);
+  }, [loadHistory]);
+
+  async function saveSettings(next: Partial<AutofixSettings>) {
+    const payload = { enabled, min_severity: severity, ...next };
+    setEnabled(payload.enabled);
+    setSeverity(payload.min_severity);
+    try {
+      await apiPost<AutofixSettings>("/autofix/settings", payload);
+    } catch {/* ignore */}
+  }
+
+  async function doRewrite() {
+    if (!original.trim() || !rationale.trim()) {
+      alert("Need both the original response and a rationale.");
+      return;
+    }
+    setRunning(true);
+    try {
+      const d = await apiPost<RewriteResponse>("/autofix/rewrite", {
+        original_response: original.trim(),
+        finding_rationale: rationale.trim(),
+        regulation,
+        article: article || null,
+        language_hint: lang || null,
+      });
+      setResult(d);
+      setTotal((n) => n + 1);
+      await loadHistory();
+    } catch (e) {
+      alert(`Rewrite failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <>
+      <Topbar pageKey="autofix" />
+      <main className="arch-main">
+        <section className="arch-hero">
+          <div className="arch-hero-text">
+            <div className="pg-hero-eyebrow">In-line remediation</div>
+            <h1 className="arch-hero-title">Don&apos;t block the user — rewrite the response</h1>
+            <p className="arch-hero-sub">
+              When the audit detects a violation, SENTRY can ask Gemini Pro to <strong>rewrite</strong> the response so the end user receives a compliant reply instead of an error. The original AND the rewrite are both stored — your compliance team reviews the diff, not a customer complaint.
+            </p>
+          </div>
+          <div className="arch-hero-metrics">
+            <div className="metric-card"><div className="metric-val">{total}</div><div className="metric-lbl">Rewrites this session</div></div>
+            <div className="metric-card"><div className="metric-val">Gemini Pro</div><div className="metric-lbl">Rewriting engine</div></div>
+            <div className="metric-card"><div className="metric-val">{enabled ? "ON" : "OFF"}</div><div className="metric-lbl">Current mode</div></div>
+            <div className="metric-card"><div className="metric-val">5 lang</div><div className="metric-lbl">Output languages</div></div>
+          </div>
+        </section>
+
+        <Card className="arch-card" title="Configuration" subtitle="When enabled, SENTRY rewrites every response flagged at or above the minimum severity. When disabled, behaviour reverts to standard block/warn/allow.">
+          <div className="af-toggle-wrap">
+            <label className="af-toggle">
+              <input
+                type="checkbox"
+                checked={enabled}
+                onChange={(e) => saveSettings({ enabled: e.target.checked })}
+              />
+              <span className="af-toggle-track"><span className="af-toggle-knob" /></span>
+              <span className="af-toggle-label">Enable auto-rewrite</span>
+            </label>
+            <label className="af-severity">
+              <span>Trigger when severity ≥</span>
+              <select
+                value={severity}
+                onChange={(e) => saveSettings({ min_severity: e.target.value as "warning" | "critical" })}
+              >
+                <option value="warning">Warning</option>
+                <option value="critical">Critical only</option>
+              </select>
+            </label>
+          </div>
+        </Card>
+
+        <Card className="arch-card" title="Try a rewrite" subtitle="Paste an offending response and SENTRY rewrites it to be compliant. Powered by Gemini Pro.">
+          <div className="af-form">
+            <label>
+              <span>Original bot response</span>
+              <textarea
+                rows={3}
+                value={original}
+                onChange={(e) => setOriginal(e.target.value)}
+                placeholder="Your loan application was automatically denied. We cannot provide further details."
+              />
+            </label>
+            <div className="af-row">
+              <label>
+                <span>Regulation violated</span>
+                <select value={regulation} onChange={(e) => setRegulation(e.target.value)}>
+                  <option value="eu_ai_act">EU AI Act</option>
+                  <option value="gdpr">GDPR</option>
+                  <option value="dora">DORA</option>
+                  <option value="pii_leak">PII Leak</option>
+                  <option value="prompt_injection">Prompt Injection</option>
+                </select>
+              </label>
+              <label>
+                <span>Article (optional)</span>
+                <input type="text" value={article} onChange={(e) => setArticle(e.target.value)} placeholder="e.g. Art. 13" />
+              </label>
+              <label>
+                <span>Language</span>
+                <select value={lang} onChange={(e) => setLang(e.target.value)}>
+                  <option value="">auto</option>
+                  <option value="en">English</option>
+                  <option value="es">Spanish</option>
+                  <option value="it">Italian</option>
+                  <option value="pt">Portuguese</option>
+                  <option value="zh">Chinese</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              <span>Why it violates (rationale)</span>
+              <textarea
+                rows={2}
+                value={rationale}
+                onChange={(e) => setRationale(e.target.value)}
+                placeholder="The bot refused a credit decision without offering explanation or human review path."
+              />
+            </label>
+            <button type="button" className="rt-run-btn" onClick={doRewrite} disabled={running}>
+              {running ? "⏳ Rewriting with Gemini Pro…" : "✨ Rewrite with Gemini Pro"}
+            </button>
+          </div>
+
+          {result && (
+            <div className="af-diff">
+              <div className="af-pane">
+                <div className="af-pane-head">Before (non-compliant)</div>
+                <div className="af-pane-body">{result.original}</div>
+              </div>
+              <div className="af-pane after">
+                <div className="af-pane-head">After (compliant)</div>
+                <div className="af-pane-body">{result.rewritten}</div>
+              </div>
+            </div>
+          )}
+        </Card>
+
+        <Card className="arch-card" title="Recent rewrites" subtitle="Last 20 rewrites issued. Click any row to expand the before/after diff.">
+          <div className="af-history">
+            {history.length === 0 && (
+              <div className="muted" style={{ padding: 24, textAlign: "center" }}>
+                No rewrites yet.
+              </div>
+            )}
+            {history.map((it) => (
+              <div
+                key={it.record_id}
+                className="af-hist-item"
+                onClick={() => setResult({ original: it.original, rewritten: it.rewritten })}
+              >
+                <div className="af-hist-head">
+                  <div>
+                    <strong>{it.regulation}</strong>
+                    {it.article && <span className="muted small"> · {it.article}</span>}
+                  </div>
+                  <span className="af-hist-meta">
+                    {new Date(it.created_at).toLocaleTimeString("en-GB")} · {(it.record_id ?? "").slice(0, 8)}
+                  </span>
+                </div>
+                <div className="af-hist-snippet">{(it.rewritten ?? "").slice(0, 200)}…</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </main>
+
+      <footer className="footer">
+        ARCA SENTRY · Continuous compliance auditing for enterprise AI
+      </footer>
+    </>
+  );
+}
