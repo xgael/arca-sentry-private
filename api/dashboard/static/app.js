@@ -21,7 +21,7 @@ const REG_COLORS = {
   pii_leak: '#6d28d9',
   prompt_injection: '#334155',
 };
-const CHANNEL_ICONS = { text: '💬', voice: '🎙', api: '🔌' };
+const CHANNEL_ICONS = { text: 'message-square', voice: 'mic', api: 'plug-zap' };
 const LANG_TAG = {
   credit_denial: 'EN', credit_denial_es: 'ES', pii_leak: 'EN',
   prompt_injection: 'EN', dora_incident: 'EN', voice_no_disclosure: 'IT',
@@ -70,9 +70,9 @@ function showToast({ title, msg, type = 'critical', timeout = 5500 }) {
   if (!wrap) return;
   const t = document.createElement('div');
   t.className = `toast ${type}`;
-  const icons = { critical: '🚨', warning: '⚠️', success: '✓', info: 'ℹ️' };
+  const icons = { critical: 'siren', warning: 'triangle-alert', success: 'check-circle-2', info: 'info' };
   t.innerHTML = `
-    <span class="toast-icon">${icons[type] || '🔔'}</span>
+    <span class="toast-icon"><i data-lucide="${icons[type] || 'bell'}"></i></span>
     <div class="toast-body">
       <div class="toast-title">${escapeHtml(title)}</div>
       <div class="toast-msg">${escapeHtml(msg)}</div>
@@ -80,6 +80,7 @@ function showToast({ title, msg, type = 'critical', timeout = 5500 }) {
     <button class="toast-close" aria-label="close">✕</button>
   `;
   wrap.appendChild(t);
+  if (window.lucide) window.lucide.createIcons();
   const close = () => {
     t.classList.add('toast-leaving');
     setTimeout(() => t.remove(), 240);
@@ -113,10 +114,7 @@ async function loadScenarios() {
       const btn = document.createElement('button');
       btn.className = 'scenario-btn';
       const lang = LANG_TAG[name] || 'EN';
-      // El label va en <span> (no text node suelto) porque .scenario-btn::before
-      // es un overlay opacity-driven y .scenario-btn > * { z-index: 1 } sólo
-      // eleva element children — un text node quedaría tapado en hover.
-      btn.innerHTML = `<span>${name.replace(/_/g, ' ')}</span> <span class="lang-badge">${lang}</span>`;
+      btn.innerHTML = `${name.replace(/_/g, ' ')} <span class="lang-badge">${lang}</span>`;
       btn.onclick = () => runScenario(name, btn);
       c.appendChild(btn);
     });
@@ -413,12 +411,12 @@ function renderFeed(items) {
     const chips = (i.findings || []).map((f) =>
       `<span class="reg-chip ${f.regulation}">${REG_LABELS[f.regulation] || f.regulation}</span>`
     ).join('') || '<span class="muted">—</span>';
-    const channelIcon = CHANNEL_ICONS[i.channel] || '🔌';
+    const channelIcon = CHANNEL_ICONS[i.channel] || 'plug-zap';
 
     tr.innerHTML = `
       <td class="time-cell">${time.toLocaleTimeString('en-GB')}</td>
       <td><span class="sev-pill ${i.severity}">${i.severity}</span></td>
-      <td><span class="channel-icon">${channelIcon}</span>${i.channel}</td>
+      <td><span class="channel-icon"><i data-lucide="${channelIcon}"></i></span>${i.channel}</td>
       <td class="actor-cell">${escapeHtml(i.actor || '')}</td>
       <td class="snippet-cell">${escapeHtml(i.response_preview || '')}</td>
       <td>${chips}</td>
@@ -427,6 +425,7 @@ function renderFeed(items) {
     `;
     body.appendChild(tr);
   });
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function emptyStateSvg() {

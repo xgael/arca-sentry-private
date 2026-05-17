@@ -75,7 +75,12 @@
 .toast.warning  { border-left-color: var(--amber); }
 .toast.success  { border-left-color: var(--green); }
 
-.toast-icon { font-size: 20px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+.toast-icon { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-top: 1px; }
+.toast-icon svg { width: 20px; height: 20px; stroke-width: 2; }
+.toast.critical .toast-icon svg { color: var(--red); }
+.toast.warning  .toast-icon svg { color: var(--amber); }
+.toast.success  .toast-icon svg { color: var(--green); }
+.toast.info     .toast-icon svg { color: var(--blue-600); }
 .toast-body { flex: 1; min-width: 0; }
 .toast-title {
   font-size: 12px;

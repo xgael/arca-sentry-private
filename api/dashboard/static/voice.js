@@ -388,16 +388,19 @@ function showAlert(data) {
   const banner = $('#alert-banner');
   banner.className = 'alert-banner show ' + data.severity;
   const first = (data.findings || [])[0];
-  let icon = '🚨', title = `${data.severity.toUpperCase()} · ${data.action_taken}`, detail = '';
+  let iconName = 'siren';
+  let title = `${data.severity.toUpperCase()} · ${data.action_taken}`;
+  let detail = '';
   if (first) {
     const reg = REG_LABELS[first.regulation] || first.regulation;
     title = `${reg.toUpperCase()} DETECTED`;
-    icon = { prompt_injection: '🧨', pii_leak: '📤', eu_ai_act: '🚨', gdpr: '⚖', dora: '🏦' }[first.regulation] || '🚨';
+    iconName = { prompt_injection: 'bomb', pii_leak: 'upload-cloud', eu_ai_act: 'siren', gdpr: 'scale', dora: 'landmark' }[first.regulation] || 'siren';
     detail = (first.rationale || '').slice(0, 200);
   }
-  $('#alert-icon').textContent = icon;
+  $('#alert-icon').innerHTML = `<i data-lucide="${iconName}"></i>`;
   $('#alert-title').textContent = title;
   $('#alert-detail').textContent = detail;
+  if (window.lucide) window.lucide.createIcons();
   clearTimeout(window._alertTimer);
   window._alertTimer = setTimeout(() => banner.classList.remove('show'), 8000);
 }

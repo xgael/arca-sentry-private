@@ -14,28 +14,40 @@
   gap: 16px;
   padding: 16px 22px;
   border-radius: var(--r);
-  background: linear-gradient(135deg, var(--red-50) 0%, #ffe4e6 100%);
+  /* Glass tinted con el rojo crítico — gradient semi-transparente + blur.
+     Estilo iOS notification: el color queda como wash sobre lo que esté
+     detrás (chat, prompts, etc.). */
+  background: linear-gradient(135deg, rgba(254, 226, 226, 0.78) 0%, rgba(255, 228, 230, 0.72) 100%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1.5px solid var(--red);
-  box-shadow: var(--shadow-lg), var(--shadow-glow-red);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-red), 0 1px 0 rgba(255, 255, 255, 0.7) inset;
   z-index: 200;
   transition: transform 0.35s var(--ease-out);
 }
 .alert-banner.show { transform: translate(-50%, 0); }
 .alert-banner.warning {
-  background: linear-gradient(135deg, var(--amber-50) 0%, #fff7e0 100%);
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.78) 0%, rgba(255, 247, 224, 0.72) 100%);
   border-color: var(--amber);
-  box-shadow: var(--shadow-lg), 0 0 24px rgba(180, 83, 9, 0.18);
+  box-shadow: var(--shadow-lg), 0 0 24px rgba(180, 83, 9, 0.18), 0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 .alert-banner.advisory {
-  background: linear-gradient(135deg, var(--green-50) 0%, #ecfdf5 100%);
+  background: linear-gradient(135deg, rgba(220, 252, 231, 0.78) 0%, rgba(236, 253, 245, 0.72) 100%);
   border-color: var(--green);
-  box-shadow: var(--shadow-lg), 0 0 24px rgba(21, 128, 61, 0.15);
+  box-shadow: var(--shadow-lg), 0 0 24px rgba(21, 128, 61, 0.15), 0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 .alert-icon {
-  font-size: 32px;
   flex-shrink: 0;
+  width: 36px; height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   animation: shake 0.4s var(--ease-out);
 }
+.alert-icon svg { width: 28px; height: 28px; stroke-width: 2; }
+.alert-banner.critical .alert-icon svg { color: var(--red); }
+.alert-banner.warning  .alert-icon svg { color: var(--amber); }
+.alert-banner.advisory .alert-icon svg { color: var(--green); }
 @keyframes shake {
   0% { transform: rotate(0); }
   25% { transform: rotate(-12deg); }
@@ -77,9 +89,12 @@
   gap: 18px;
 }
 
-/* hero */
+/* hero — animated gradient bg vive en style.css (compartido con .arch-hero) */
 .pg-hero {
-  background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
+  background:
+    radial-gradient(ellipse at top left, rgba(255, 255, 255, 0.22), transparent 55%),
+    radial-gradient(ellipse at bottom right, rgba(255, 255, 255, 0.16), transparent 60%),
+    linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
   color: white;
   border-radius: var(--r);
   padding: 24px 32px;
@@ -90,15 +105,9 @@
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
+  isolation: isolate;
 }
-.pg-hero::before {
-  content: '';
-  position: absolute;
-  top: 0; right: 0; width: 380px; height: 100%;
-  background: radial-gradient(circle at 80% 50%, rgba(37, 99, 235, 0.18), transparent 70%);
-  pointer-events: none;
-}
-.pg-hero-text { position: relative; }
+.pg-hero-text { position: relative; z-index: 1; max-width: 720px; }
 .pg-hero-eyebrow {
   font-size: 10px;
   text-transform: uppercase;
@@ -124,6 +133,7 @@
   display: flex;
   gap: 24px;
   position: relative;
+  z-index: 1;
 }
 .pg-hero-stat {
   text-align: right;

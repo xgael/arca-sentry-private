@@ -264,17 +264,14 @@ function showAlert(data) {
   if (firstFinding) {
     const reg = REG_LABELS[firstFinding.regulation] || firstFinding.regulation;
     title = `${reg.toUpperCase()} VIOLATION DETECTED`;
-    if (firstFinding.regulation === 'prompt_injection') {
-      title = '🧨 PROMPT INJECTION DETECTED';
-    } else if (firstFinding.regulation === 'pii_leak') {
-      title = '📤 PII LEAK DETECTED';
-    } else if (firstFinding.regulation === 'eu_ai_act') {
-      title = '🚨 EU AI ACT VIOLATION';
-    } else if (firstFinding.regulation === 'gdpr') {
-      title = '⚖ GDPR VIOLATION';
-    } else if (firstFinding.regulation === 'dora') {
-      title = '🏦 DORA VIOLATION';
-    }
+    const TITLES = {
+      prompt_injection: 'PROMPT INJECTION DETECTED',
+      pii_leak:         'PII LEAK DETECTED',
+      eu_ai_act:        'EU AI ACT VIOLATION',
+      gdpr:             'GDPR VIOLATION',
+      dora:             'DORA VIOLATION',
+    };
+    title = TITLES[firstFinding.regulation] || title;
     detail = firstFinding.rationale
       ? firstFinding.rationale.slice(0, 200) + (firstFinding.rationale.length > 200 ? '…' : '')
       : 'Multiple agents flagged this interaction.';
@@ -283,19 +280,20 @@ function showAlert(data) {
     detail = '—';
   }
 
-  let icon = '🚨';
-  if (firstFinding) {
-    icon = {
-      prompt_injection: '🧨',
-      pii_leak: '📤',
-      eu_ai_act: '🚨',
-      gdpr: '⚖',
-      dora: '🏦',
-    }[firstFinding.regulation] || '🚨';
-  }
-  $('#alert-icon').textContent = icon;
+  // Lucide icon por tipo de regulación — el SVG se renderea con
+  // lucide.createIcons() al final.
+  const ICONS = {
+    prompt_injection: 'bomb',
+    pii_leak:         'upload-cloud',
+    eu_ai_act:        'siren',
+    gdpr:             'scale',
+    dora:             'landmark',
+  };
+  const iconName = firstFinding ? (ICONS[firstFinding.regulation] || 'siren') : 'siren';
+  $('#alert-icon').innerHTML = `<i data-lucide="${iconName}"></i>`;
   $('#alert-title').textContent = title;
   $('#alert-detail').textContent = detail;
+  if (window.lucide) window.lucide.createIcons();
 
   // Auto-hide after 8s
   clearTimeout(window._alertTimer);

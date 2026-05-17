@@ -231,11 +231,11 @@ function renderResults(data, targetName) {
       ${r.vulnerable ? `
         <div class="rt-result-body">
           <div class="rt-prompt-block">
-            <div class="rt-block-label">🎯 Attacker prompt</div>
+            <div class="rt-block-label"><i data-lucide="target"></i> Attacker prompt</div>
             <code class="rt-prompt-code">${escapeHtml(r.prompt || '')}</code>
           </div>
           <div class="rt-response-block">
-            <div class="rt-block-label">💬 Bot response (leaked)</div>
+            <div class="rt-block-label"><i data-lucide="message-square"></i> Bot response (leaked)</div>
             <code class="rt-response-code">${escapeHtml((r.response || '').slice(0, 320))}${(r.response || '').length > 320 ? '…' : ''}</code>
           </div>
         </div>` : `
@@ -273,6 +273,9 @@ function renderResults(data, targetName) {
     $('#rt-copy-summary').onclick = () => copySummary();
     $('#rt-share-link').onclick = () => shareLink();
   }
+
+  // Render lucide icons en el HTML inyectado
+  if (window.lucide) window.lucide.createIcons();
 
   // Smooth scroll to results
   $('#rt-results-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
