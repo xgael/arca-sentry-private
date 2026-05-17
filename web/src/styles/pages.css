@@ -113,43 +113,50 @@
 
 /* ═════════════ ARCHITECTURE ═════════════ */
 .arch-main {
-  max-width: 1200px; margin: 28px auto; padding: 0 28px;
+  margin: 0 0 0 var(--sidebar-width);
+  padding: 32px 36px 48px;
   display: flex; flex-direction: column; gap: 22px;
 }
+@media (max-width: 880px) {
+  .arch-main { margin-left: 0; padding-left: 18px; padding-right: 18px; }
+}
 .arch-hero {
-  background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
-  color: white; border-radius: var(--r);
+  background: linear-gradient(135deg, #ffffff 0%, var(--blue-50) 100%);
+  color: var(--ink); border-radius: var(--r);
   padding: 36px 40px;
   display: flex; align-items: center; justify-content: space-between; gap: 32px;
-  box-shadow: var(--shadow-md); position: relative; overflow: hidden;
+  box-shadow: var(--shadow-xs);
+  border: 1px solid var(--line);
+  position: relative; overflow: hidden;
 }
 .arch-hero::before {
   content: ""; position: absolute; top: 0; right: 0;
   width: 420px; height: 100%;
-  background: radial-gradient(circle at 80% 50%, rgba(37, 99, 235, 0.22), transparent 70%);
+  background: radial-gradient(circle at 80% 50%, rgba(37, 99, 235, 0.10), transparent 70%);
   pointer-events: none;
 }
 .arch-hero-text { position: relative; max-width: 680px; }
 .arch-hero-title {
   font-size: 32px; font-weight: 800; letter-spacing: -0.6px;
-  margin-bottom: 12px; color: white; line-height: 1.15;
+  margin-bottom: 12px; color: var(--ink); line-height: 1.15;
 }
-.arch-hero-sub { font-size: 15px; line-height: 1.6; color: var(--ink-inv-2); }
+.arch-hero-sub { font-size: 15px; line-height: 1.6; color: var(--ink-2); }
 .pg-hero-eyebrow {
   font-size: 11px; font-weight: 700; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--blue-300); margin-bottom: 6px;
+  text-transform: uppercase; color: var(--blue-600); margin-bottom: 6px;
 }
 .arch-hero-metrics {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
   position: relative; min-width: 280px;
 }
 .metric-card {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #ffffff;
+  border: 1px solid var(--line);
   border-radius: var(--r-sm); padding: 14px 16px; text-align: left;
+  box-shadow: var(--shadow-xs);
 }
-.metric-val { font-size: 24px; font-weight: 800; color: white; letter-spacing: -0.4px; font-variant-numeric: tabular-nums; }
-.metric-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--blue-300); margin-top: 4px; }
+.metric-val { font-size: 24px; font-weight: 800; color: var(--blue-700); letter-spacing: -0.4px; font-variant-numeric: tabular-nums; }
+.metric-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-3); margin-top: 4px; }
 
 .arch-card { padding: 28px 32px; }
 .arch-card h2 {

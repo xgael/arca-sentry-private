@@ -13,6 +13,7 @@ import {
   Wand,
   Layers,
   FlaskConical,
+  Boxes,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { apiGet } from "@/lib/api";
@@ -33,21 +34,15 @@ interface TopbarProps {
   pageKey: PageKey;
 }
 
-const SUBKEY: Record<PageKey, string> = {
-  dashboard: "brand.sub.ops",
-  tickets: "brand.sub.ops",
-  playground: "brand.sub.playground",
-  voice: "brand.sub.voice",
-  redteam: "brand.sub.redteam",
-  connect: "brand.sub.ops",
-  proxy: "brand.sub.proxy",
-  autofix: "brand.sub.autofix",
-  architecture: "brand.sub.arch",
-  agent: "brand.sub.ops",
-};
-
-const TEST_GROUP: PageKey[] = ["playground", "voice", "redteam"];
-const INTEGRATE_GROUP: PageKey[] = ["connect", "proxy", "autofix"];
+interface NavSection {
+  label: string;
+  items: Array<{
+    key: PageKey;
+    href: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }>;
+}
 
 export default function Topbar({ pageKey }: TopbarProps) {
   const { t, lang, setLang } = useT();
@@ -70,12 +65,42 @@ export default function Topbar({ pageKey }: TopbarProps) {
     return () => { cancelled = true; };
   }, []);
 
-  const testHasActive = TEST_GROUP.includes(pageKey);
-  const integrateHasActive = INTEGRATE_GROUP.includes(pageKey);
+  const sections: NavSection[] = [
+    {
+      label: t("nav.section.overview", "Overview"),
+      items: [
+        { key: "dashboard", href: "/", label: t("nav.dashboard"), icon: LayoutDashboard },
+        { key: "tickets", href: "/tickets", label: t("nav.tickets"), icon: Ticket },
+      ],
+    },
+    {
+      label: t("nav.test", "Test"),
+      items: [
+        { key: "playground", href: "/playground", label: t("nav.playground"), icon: MessageSquare },
+        { key: "voice", href: "/voice", label: t("nav.voice"), icon: Mic },
+        { key: "redteam", href: "/redteam", label: t("nav.redteam"), icon: Target },
+      ],
+    },
+    {
+      label: t("nav.integrate", "Integrate"),
+      items: [
+        { key: "connect", href: "/connect", label: t("nav.connect", "Connect agent"), icon: PlusCircle },
+        { key: "proxy", href: "/proxy", label: t("nav.proxy"), icon: Plug },
+        { key: "autofix", href: "/autofix", label: t("nav.autofix"), icon: Wand },
+      ],
+    },
+    {
+      label: t("nav.system", "System"),
+      items: [
+        { key: "architecture", href: "/architecture", label: t("nav.architecture"), icon: Layers },
+        { key: "agent", href: "/agent", label: t("nav.agents", "Agents"), icon: Boxes },
+      ],
+    },
+  ];
 
   return (
-    <header className="topbar">
-      <div className="brand">
+    <aside className="sidebar">
+      <div className="sidebar-brand">
         <div className="brand-logo">
           <span className="brand-logo-letter">S</span>
         </div>
@@ -83,71 +108,40 @@ export default function Topbar({ pageKey }: TopbarProps) {
           <div className="brand-name">
             ARCA <strong>SENTRY</strong>
           </div>
-          <div className="brand-sub">{t(SUBKEY[pageKey])}</div>
+          <div className="brand-sub">Compliance OS</div>
         </div>
       </div>
 
-      <nav className="tabs">
-        <Link href="/" className={`tab ${pageKey === "dashboard" ? "active" : ""}`}>
-          <LayoutDashboard className="icon-svg" />
-          <span>{t("nav.dashboard")}</span>
-        </Link>
-        <Link href="/tickets" className={`tab ${pageKey === "tickets" ? "active" : ""}`}>
-          <Ticket className="icon-svg" />
-          <span>{t("nav.tickets")}</span>
-        </Link>
-
-        <div className={`tab-group ${testHasActive ? "has-active" : ""}`} tabIndex={0}>
-          <span className="tab">
-            <FlaskConical className="icon-svg" />
-            <span>{t("nav.test")}</span>
-            <span className="caret">▾</span>
-          </span>
-          <div className="tab-menu">
-            <Link href="/playground" className={`tab ${pageKey === "playground" ? "active" : ""}`}>
-              <MessageSquare className="icon-svg" />
-              <span>{t("nav.playground")}</span>
-            </Link>
-            <Link href="/voice" className={`tab ${pageKey === "voice" ? "active" : ""}`}>
-              <Mic className="icon-svg" />
-              <span>{t("nav.voice")}</span>
-            </Link>
-            <Link href="/redteam" className={`tab ${pageKey === "redteam" ? "active" : ""}`}>
-              <Target className="icon-svg" />
-              <span>{t("nav.redteam")}</span>
-            </Link>
+      <nav className="sidebar-nav">
+        {sections.map((section) => (
+          <div className="sidebar-section" key={section.label}>
+            <div className="sidebar-section-label">{section.label}</div>
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              const active = pageKey === item.key;
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className={`sidebar-link ${active ? "active" : ""}`}
+                >
+                  <Icon className="icon-svg" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </div>
-        </div>
-
-        <div className={`tab-group ${integrateHasActive ? "has-active" : ""}`} tabIndex={0}>
-          <span className="tab">
-            <Plug className="icon-svg" />
-            <span>{t("nav.integrate")}</span>
-            <span className="caret">▾</span>
-          </span>
-          <div className="tab-menu">
-            <Link href="/connect" className={`tab ${pageKey === "connect" ? "active" : ""}`}>
-              <PlusCircle className="icon-svg" />
-              <span>Connect agent</span>
-            </Link>
-            <Link href="/proxy" className={`tab ${pageKey === "proxy" ? "active" : ""}`}>
-              <Plug className="icon-svg" />
-              <span>{t("nav.proxy")}</span>
-            </Link>
-            <Link href="/autofix" className={`tab ${pageKey === "autofix" ? "active" : ""}`}>
-              <Wand className="icon-svg" />
-              <span>{t("nav.autofix")}</span>
-            </Link>
-          </div>
-        </div>
-
-        <Link href="/architecture" className={`tab ${pageKey === "architecture" ? "active" : ""}`}>
-          <Layers className="icon-svg" />
-          <span>{t("nav.architecture")}</span>
-        </Link>
+        ))}
       </nav>
 
-      <div className="topbar-right">
+      <div className="sidebar-footer">
+        <div className={`status-pill ${live ? "live" : ""}`}>
+          <span className="dot" />
+          <span className="status-text">
+            {live ? t("status.live") : t("status.connecting")}
+          </span>
+        </div>
+        {host && <div className="sidebar-host">{host}</div>}
         <button
           type="button"
           className="lang-switch"
@@ -156,14 +150,7 @@ export default function Topbar({ pageKey }: TopbarProps) {
         >
           {lang === "en" ? "🇪🇸 ES" : "🇬🇧 EN"}
         </button>
-        <div className={`status-pill ${live ? "live" : ""}`}>
-          <span className="dot" />
-          <span className="status-text">
-            {live ? t("status.live") : t("status.connecting")}
-          </span>
-          {host && <span className="status-meta">{host}</span>}
-        </div>
       </div>
-    </header>
+    </aside>
   );
 }
