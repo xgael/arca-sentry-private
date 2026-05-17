@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertOctagon, AlertTriangle, Archive, CheckCircle, Wallet } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import Topbar from "@/components/chrome/Topbar";
 import Card from "@/components/ui/Card";
-import Kpi from "@/components/ui/Kpi";
 import { apiGet, apiPost } from "@/lib/api";
 import { REG_LABELS } from "@/lib/format";
 import { useT } from "@/lib/i18n";
@@ -124,35 +123,34 @@ export default function TicketsPage() {
       <Topbar pageKey="tickets" />
 
       <main>
-        <section className="kpi-row">
-          <Kpi
-            label={t("tickets.kpi.open")}
-            value={summary?.open_count ?? "—"}
-            suffix={t("tickets.kpi.open.sub")}
-            icon={<AlertOctagon className="icon-svg" />}
-            variant="critical"
-          />
-          <Kpi
-            label={t("tickets.kpi.exposure")}
-            value={summary?.total_open_exposure_label ?? "—"}
-            suffix={t("tickets.kpi.exposure.sub")}
-            icon={<Wallet className="icon-svg" />}
-            variant="warning"
-          />
-          <Kpi
-            label={t("tickets.kpi.resolved")}
-            value={summary?.by_status.resolved ?? 0}
-            suffix={t("tickets.kpi.resolved.sub")}
-            icon={<CheckCircle className="icon-svg" />}
-            variant="primary"
-          />
-          <Kpi
-            label={t("tickets.kpi.total")}
-            value={summary?.total_tickets ?? "—"}
-            suffix={t("tickets.kpi.total.sub")}
-            icon={<Archive className="icon-svg" />}
-            variant="volume"
-          />
+        <section className="hero-strip">
+          <div className="hero-mega">
+            <div className="hero-mega-eyebrow">{t("tickets.kpi.open")}</div>
+            <div className="hero-mega-val">
+              {summary ? summary.open_count : "—"}
+            </div>
+            <div className="hero-mega-lbl">
+              {t("tickets.kpi.open.sub")} · Every warning or critical SENTRY
+              catches becomes a ticket here, with an estimated cost if left
+              unresolved.
+            </div>
+          </div>
+          <div className="hero-satellites">
+            <div className="hero-satellite">
+              <div className="hero-satellite-val critical">
+                {summary?.total_open_exposure_label ?? "—"}
+              </div>
+              <div className="hero-satellite-lbl">{t("tickets.kpi.exposure.sub")}</div>
+            </div>
+            <div className="hero-satellite">
+              <div className="hero-satellite-val">{summary?.by_status.resolved ?? 0}</div>
+              <div className="hero-satellite-lbl">{t("tickets.kpi.resolved")}</div>
+            </div>
+            <div className="hero-satellite">
+              <div className="hero-satellite-val">{summary?.total_tickets ?? "—"}</div>
+              <div className="hero-satellite-lbl">{t("tickets.kpi.total")}</div>
+            </div>
+          </div>
         </section>
 
         <Card>

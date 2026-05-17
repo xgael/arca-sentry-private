@@ -94,8 +94,29 @@ export default function Topbar({ pageKey }: TopbarProps) {
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <div className="brand-logo">
-          <span className="brand-logo-letter">S</span>
+        <div className="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="brand-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stopColor="#6e95cf" />
+                <stop offset="1" stopColor="#2563eb" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M16 3 4 7v8.5c0 6 4.7 11.6 12 13.5 7.3-1.9 12-7.5 12-13.5V7L16 3z"
+              fill="url(#brand-grad)"
+              stroke="rgba(255,255,255,0.18)"
+              strokeWidth="0.6"
+            />
+            <path
+              d="m10.5 16.2 3.7 3.6L22 12"
+              stroke="#ffffff"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </svg>
         </div>
         <div className="brand-text">
           <div className="brand-name">
