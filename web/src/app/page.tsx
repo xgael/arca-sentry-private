@@ -93,6 +93,23 @@ export default function DashboardPage() {
     return () => clearInterval(id);
   }, [refreshAll]);
 
+  // Auto-seed: if the dashboard is empty when a visitor lands, auto-run one
+  // demo scenario so they never see a blank canvas. Only fires once.
+  const autoSeedFired = useRef(false);
+  useEffect(() => {
+    if (autoSeedFired.current) return;
+    if (!summary || !scenarios.length) return;
+    if (summary.total_interactions > 0) {
+      autoSeedFired.current = true;
+      return;
+    }
+    autoSeedFired.current = true;
+    const preferred = ["credit_denial", "prompt_injection", scenarios[0]];
+    const pick = preferred.find((s) => scenarios.includes(s)) ?? scenarios[0];
+    setTimeout(() => { void runScenario(pick); }, 800);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary, scenarios]);
+
   async function runScenario(name: string) {
     setBusy(name);
     setAgents((prev) => prev.map((a) => ({ ...a, state: "auditing…" })));
