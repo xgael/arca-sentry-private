@@ -75,29 +75,23 @@ export default function ConnectPage() {
           }),
         },
       );
+      // Result now lives in the toast (title, id, next step). The card below
+      // is reduced to a strip of next-step CTAs — no duplicated copy.
       const url = typeof window !== "undefined" ? `${window.location.origin}/v1/chat/completions` : "";
-      const proxyHtml = r.proxy_endpoint || channel === "proxy"
-        ? `<p><strong>Your proxy endpoint:</strong></p><code>${url}</code>
-           <p class="muted small">Point your OpenAI client's <code>base_url</code> there. SENTRY audits every call inline.</p>`
-        : "";
+      const showProxy = r.proxy_endpoint || channel === "proxy";
       const html = `
-        <h3>${r.pending ? "🟡 Saved · channel in beta" : "✅ Agent registered"}</h3>
-        ${r.pending
-          ? `<p>The channel "<strong>${channel}</strong>" is in beta. The agent has been registered as <code>${r.agent_id}</code> and will be activated when that channel ships.</p>`
-          : `<p>Agent registered as <code>${r.agent_id}</code>. ${r.next_step ?? ""}</p>`}
-        ${proxyHtml}
         <div class="cn-result-actions">
           <a href="/agent?id=${r.agent_id}">📊 View agent profile</a>
           ${!r.pending ? `<a href="/redteam?prefill=${r.agent_id}">⚡ Run Red Team now</a>` : ""}
           <a href="/connect">➕ Register another</a>
         </div>
+        ${showProxy ? `<code class="cn-proxy-endpoint">${url}</code>
+           <p class="muted small" style="margin-top:6px;">Point your OpenAI client's <code>base_url</code> at this URL.</p>` : ""}
       `;
       setResult({ ok: !r.pending, html });
     } catch (e) {
-      setResult({
-        ok: false,
-        html: `<h3>❌ Registration failed</h3><p>${e instanceof Error ? e.message : String(e)}</p>`,
-      });
+      // Error toast is already shown by toast.promise(); skip the card.
+      void e;
     } finally {
       setSubmitting(false);
       setStatus("Ready.");

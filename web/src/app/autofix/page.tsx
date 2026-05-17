@@ -144,7 +144,6 @@ export default function AutofixPage() {
             </div>
             <div className="page-head-stats">
               <span><strong>{total}</strong> rewrites this session</span>
-              <span className={`mode-pill ${enabled ? "on" : "off"}`}>{enabled ? "ON" : "OFF"}</span>
             </div>
           </div>
         </div>

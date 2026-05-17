@@ -379,7 +379,7 @@ main {
 .small { font-size: 11px; }
 
 /* ════════ KPI ROW ════════ */
-.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
 .kpi {
   background: var(--bg-card); border: 1px solid var(--line);
   border-radius: var(--r); padding: 28px 30px;

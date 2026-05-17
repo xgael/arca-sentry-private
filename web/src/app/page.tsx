@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Activity, ShieldAlert, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Activity, ShieldAlert, AlertTriangle } from "lucide-react";
 import Topbar from "@/components/chrome/Topbar";
 import Card from "@/components/ui/Card";
 import Kpi from "@/components/ui/Kpi";
@@ -11,7 +11,6 @@ import Drawer from "@/components/ui/Drawer";
 import DonutCompliance from "@/components/charts/DonutCompliance";
 import TimelineChart from "@/components/charts/TimelineChart";
 import RegsBar from "@/components/charts/RegsBar";
-import Sparkline from "@/components/charts/Sparkline";
 import { toast } from "@/components/ui/toast";
 import { useT } from "@/lib/i18n";
 import { apiGet, apiPost, type FeedItem, type SummaryStats, type TimelineData, type RegStats, type Severity } from "@/lib/api";
@@ -186,13 +185,6 @@ export default function DashboardPage() {
 
   const filtered = filter === "all" ? feed : feed.filter((f) => f.severity === filter);
   const compliantSlice = summary ? Math.max(0, summary.total_interactions - summary.violations.total_flagged) : 1;
-  const sparkValues = timeline
-    ? timeline.interactions.map((n, i) => {
-        if (n === 0) return 100;
-        const f = (timeline.warnings[i] ?? 0) + (timeline.criticals[i] ?? 0);
-        return Math.round((1 - f / n) * 100);
-      })
-    : [];
 
   return (
     <>
@@ -232,21 +224,6 @@ export default function DashboardPage() {
         </section>
 
         <section className="kpi-row">
-          <div className="kpi kpi-primary">
-            <div className="kpi-label">
-              <ShieldCheck className="kpi-icon icon-svg" />
-              <span>{t("kpi.compliance")}</span>
-            </div>
-            <div className="kpi-value">
-              {summary ? `${summary.compliance_rate.toFixed(1)}%` : <span className="skeleton">—</span>}
-            </div>
-            <div className="kpi-suffix"><span>{t("kpi.compliance.sub")}</span></div>
-            {sparkValues.length > 0 && timeline && (
-              <div className="kpi-spark">
-                <Sparkline labels={timeline.labels} values={sparkValues} />
-              </div>
-            )}
-          </div>
           <Kpi
             label={t("kpi.critical")}
             value={summary ? summary.violations.critical : <span className="skeleton">—</span>}
