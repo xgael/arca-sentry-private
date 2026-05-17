@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Topbar from "@/components/chrome/Topbar";
 import Card from "@/components/ui/Card";
 import { apiGet, apiPost } from "@/lib/api";
@@ -41,6 +41,7 @@ export default function AutofixPage() {
 
   const [result, setResult] = useState<RewriteResponse | null>(null);
   const [history, setHistory] = useState<AutofixHistory["items"]>([]);
+  const stickyToastIdRef = useRef<string | null>(null);
 
   const loadHistory = useCallback(async () => {
     try {
@@ -61,14 +62,41 @@ export default function AutofixPage() {
     return () => clearInterval(id);
   }, [loadHistory]);
 
-  async function saveSettings(next: Partial<AutofixSettings>) {
-    const payload = { enabled, min_severity: severity, ...next };
-    setEnabled(payload.enabled);
-    setSeverity(payload.min_severity);
-    try {
-      await apiPost<AutofixSettings>("/autofix/settings", payload);
-    } catch {/* ignore */}
-  }
+  const saveSettings = useCallback(
+    async (next: Partial<AutofixSettings>) => {
+      const payload = { enabled, min_severity: severity, ...next };
+      setEnabled(payload.enabled);
+      setSeverity(payload.min_severity);
+      try {
+        await apiPost<AutofixSettings>("/autofix/settings", payload);
+      } catch {/* ignore */}
+    },
+    [enabled, severity],
+  );
+
+  // Sticky toast reflecting Auto-Fix mode. Dismisses + re-shows on changes so
+  // the button's closure captures the current severity.
+  useEffect(() => {
+    if (stickyToastIdRef.current) {
+      toast.dismiss(stickyToastIdRef.current);
+      stickyToastIdRef.current = null;
+    }
+    if (!enabled) return;
+    stickyToastIdRef.current = toast.show({
+      variant: "info",
+      title: "Auto-Fix is ON",
+      description: `Rewriting responses with severity ≥ ${severity}`,
+      icon: "✨",
+      duration: null,
+      button: { title: "Disable", onClick: () => { void saveSettings({ enabled: false }); } },
+    });
+    return () => {
+      if (stickyToastIdRef.current) {
+        toast.dismiss(stickyToastIdRef.current);
+        stickyToastIdRef.current = null;
+      }
+    };
+  }, [enabled, severity, saveSettings]);
 
   async function doRewrite() {
     if (!original.trim() || !rationale.trim()) {

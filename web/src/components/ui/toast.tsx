@@ -40,6 +40,8 @@ interface ToastCallOptions {
 interface PromiseToastSpec {
   title: string;
   description?: string;
+  icon?: React.ReactNode;
+  button?: { title: string; onClick: () => void };
 }
 
 interface PromiseToastOptions<T> {
@@ -48,13 +50,35 @@ interface PromiseToastOptions<T> {
   error?: PromiseToastSpec | ((err: unknown) => PromiseToastSpec);
 }
 
+interface RichToastOptions {
+  variant?: ToastVariant;
+  title: string;
+  description?: string;
+  icon?: React.ReactNode;
+  /** ms to auto-dismiss; pass `null` to make sticky. */
+  duration?: number | null;
+  button?: { title: string; onClick: () => void };
+}
+
 interface ToastContextValue {
   toast:   (opts: ToastCallOptions) => void;
   success: (title: string, description?: string) => void;
   error:   (title: string, description?: string) => void;
   warning: (title: string, description?: string) => void;
   info:    (title: string, description?: string) => void;
+  /** Rich call with icon / button / sticky. Returns the toast id. */
+  show:    (opts: RichToastOptions) => string;
+  dismiss: (id: string) => void;
+  clear:   () => void;
   promise: <T>(p: Promise<T>, opts: PromiseToastOptions<T>) => Promise<T>;
+}
+
+function specToSileo(spec: PromiseToastSpec): SileoOptions {
+  const out: SileoOptions = { title: spec.title };
+  if (spec.description !== undefined) out.description = spec.description;
+  if (spec.icon !== undefined) out.icon = spec.icon;
+  if (spec.button) out.button = spec.button;
+  return out;
 }
 
 // sileo.* es singleton global — el context es estable.
@@ -66,12 +90,22 @@ const toastApi: ToastContextValue = {
   error:   (title, description) => sileo.error({ title, description }),
   warning: (title, description) => sileo.warning({ title, description }),
   info:    (title, description) => sileo.info({ title, description }),
+  show: ({ variant = "info", title, description, icon, duration, button }) => {
+    const opts: SileoOptions = { title };
+    if (description !== undefined) opts.description = description;
+    if (icon !== undefined) opts.icon = icon;
+    if (duration !== undefined) opts.duration = duration;
+    if (button) opts.button = button;
+    return sileo[variant](opts);
+  },
+  dismiss: (id) => sileo.dismiss(id),
+  clear:   () => sileo.clear(),
   promise: <T,>(p: Promise<T>, opts: PromiseToastOptions<T>) => {
     sileo.promise(p, {
-      loading: { title: opts.loading.title, description: opts.loading.description },
+      loading: specToSileo(opts.loading),
       success: (data: T) => {
         const spec = typeof opts.success === "function" ? opts.success(data) : opts.success;
-        return { title: spec.title, description: spec.description };
+        return specToSileo(spec);
       },
       error: (err: unknown) => {
         const fallback: PromiseToastSpec = {
@@ -81,7 +115,7 @@ const toastApi: ToastContextValue = {
         const spec = opts.error
           ? (typeof opts.error === "function" ? opts.error(err) : opts.error)
           : fallback;
-        return { title: spec.title, description: spec.description };
+        return specToSileo(spec);
       },
     });
     return p;

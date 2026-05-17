@@ -20,6 +20,14 @@ export const CHANNEL_ICONS: Record<string, string> = {
   api: "🔌",
 };
 
+export const REG_TOAST_ICONS: Record<string, string> = {
+  prompt_injection: "🧨",
+  pii_leak: "📤",
+  gdpr: "⚖",
+  eu_ai_act: "🚨",
+  dora: "🏦",
+};
+
 export const LANG_TAG: Record<string, string> = {
   credit_denial: "EN",
   credit_denial_es: "ES",

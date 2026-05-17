@@ -8,6 +8,7 @@ import Kpi from "@/components/ui/Kpi";
 import { apiGet, apiPost } from "@/lib/api";
 import { REG_LABELS } from "@/lib/format";
 import { useT } from "@/lib/i18n";
+import { toast } from "@/components/ui/toast";
 
 interface TicketSummary {
   open_count: number;
@@ -72,13 +73,29 @@ export default function TicketsPage() {
   }, [refreshSummary, refreshTickets]);
 
   async function setStatus(iid: string, status: TicketRow["status"]) {
+    const prev = tickets.find((tk) => tk.interaction_id === iid)?.status ?? null;
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "/api"}/tickets/${iid}/status?status=${status}`, {
         method: "PATCH",
       });
       await Promise.all([refreshSummary(), refreshTickets()]);
+      // Show undo for resolve/dismiss so an accidental click is one tap away.
+      if ((status === "resolved" || status === "dismissed") && prev && prev !== status) {
+        const label = status === "resolved" ? "resolved" : "dismissed";
+        toast.show({
+          variant: "success",
+          title: `Ticket ${label}`,
+          description: "Click undo to revert.",
+          icon: status === "resolved" ? "✓" : "✕",
+          duration: 6000,
+          button: {
+            title: "Undo",
+            onClick: () => { void setStatus(iid, prev); },
+          },
+        });
+      }
     } catch (e) {
-      alert(`Could not update: ${e instanceof Error ? e.message : String(e)}`);
+      toast.error("Could not update ticket", e instanceof Error ? e.message : String(e));
     }
   }
 

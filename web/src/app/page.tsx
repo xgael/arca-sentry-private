@@ -15,7 +15,7 @@ import Sparkline from "@/components/charts/Sparkline";
 import { toast } from "@/components/ui/toast";
 import { useT } from "@/lib/i18n";
 import { apiGet, apiPost, type FeedItem, type SummaryStats, type TimelineData, type RegStats, type Severity } from "@/lib/api";
-import { CHANNEL_ICONS, LANG_TAG, REG_LABELS, formatTime } from "@/lib/format";
+import { CHANNEL_ICONS, LANG_TAG, REG_LABELS, REG_TOAST_ICONS, formatTime } from "@/lib/format";
 
 type FilterKey = "all" | "critical" | "warning" | "advisory";
 type AgentState = "idle" | "auditing…" | "flagged" | "clean";
@@ -49,6 +49,8 @@ export default function DashboardPage() {
 
   const knownSeqs = useRef<Set<number>>(new Set());
   const firstLoad = useRef(false);
+  const advisoryBufferRef = useRef<number>(0);
+  const advisoryFlushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refreshAll = useCallback(async () => {
     const [s, tl, rg, fd] = await Promise.allSettled([
@@ -68,13 +70,18 @@ export default function DashboardPage() {
             knownSeqs.current.add(i.seq);
             const first = i.findings[0];
             const reg = first ? (REG_LABELS[first.regulation] ?? first.regulation) : "Unknown";
-            const title = `${i.severity.toUpperCase()} · ${reg}`;
-            const description = i.response_preview || "New violation detected.";
-            if (i.severity === "critical") {
-              toast.error(title, description);
-            } else {
-              toast.warning(title, description);
-            }
+            const icon = first ? REG_TOAST_ICONS[first.regulation] : undefined;
+            const interactionId = i.interaction_id;
+            toast.show({
+              variant: i.severity === "critical" ? "error" : "warning",
+              title: `${i.severity.toUpperCase()} · ${reg}`,
+              description: i.response_preview || "New violation detected.",
+              icon,
+              button: { title: "Open audit", onClick: () => setDrawerId(interactionId) },
+            });
+          } else if (!knownSeqs.current.has(i.seq) && i.severity === "advisory") {
+            knownSeqs.current.add(i.seq);
+            advisoryBufferRef.current += 1;
           } else {
             knownSeqs.current.add(i.seq);
           }
@@ -84,6 +91,24 @@ export default function DashboardPage() {
       }
       setFeed(items);
       firstLoad.current = true;
+
+      // Debounced advisory roll-up: if a burst of advisory events lands during
+      // polling, surface ONE compact info toast instead of nothing.
+      if (advisoryBufferRef.current >= 3 && !advisoryFlushTimerRef.current) {
+        advisoryFlushTimerRef.current = setTimeout(() => {
+          const n = advisoryBufferRef.current;
+          advisoryBufferRef.current = 0;
+          advisoryFlushTimerRef.current = null;
+          if (n > 0) {
+            toast.show({
+              variant: "info",
+              title: `+${n} new advisory event${n === 1 ? "" : "s"}`,
+              description: "Logged to the audit store — no action needed.",
+              duration: 3500,
+            });
+          }
+        }, 1200);
+      }
     }
   }, []);
 
@@ -114,10 +139,37 @@ export default function DashboardPage() {
   async function runScenario(name: string) {
     setBusy(name);
     setAgents((prev) => prev.map((a) => ({ ...a, state: "auditing…" })));
+    const pretty = name.replace(/_/g, " ");
     try {
-      const decision = await apiPost<{ interaction_id: string; findings?: Array<{ agent: string }> }>(
-        "/demo/run",
-        { scenario: name },
+      const decision = await toast.promise(
+        apiPost<{
+          interaction_id: string;
+          severity?: Severity;
+          findings?: Array<{ agent: string; regulation?: string }>;
+        }>("/demo/run", { scenario: name }),
+        {
+          loading: {
+            title: `Running ${pretty}`,
+            description: "Auditing across the 5 specialised agents…",
+          },
+          success: (r) => {
+            const findingsCount = r.findings?.length ?? 0;
+            const sev = r.severity ?? "advisory";
+            const firstReg = r.findings?.[0]?.regulation;
+            return {
+              title: `Detected: ${sev}`,
+              description: findingsCount === 0
+                ? "No violations · audit logged."
+                : `${findingsCount} finding${findingsCount === 1 ? "" : "s"} from the auditor council.`,
+              icon: firstReg ? REG_TOAST_ICONS[firstReg] : undefined,
+              button: { title: "View audit", onClick: () => setDrawerId(r.interaction_id) },
+            };
+          },
+          error: (err) => ({
+            title: "Scenario failed",
+            description: err instanceof Error ? err.message : String(err),
+          }),
+        },
       );
       const flagged = new Set((decision.findings ?? []).map((f) => f.agent));
       setAgents((prev) => prev.map((a) => ({ ...a, state: flagged.has(a.name) ? "flagged" : "clean" })));
