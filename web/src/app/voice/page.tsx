@@ -15,7 +15,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Topbar from "@/components/chrome/Topbar";
-import { apiGet, apiPost, type Finding, type Severity } from "@/lib/api";
+import { apiPost, type Finding, type Severity } from "@/lib/api";
 import { useT } from "@/lib/i18n";
 import { REG_LABELS, escapeHtml } from "@/lib/format";
 
@@ -86,10 +86,6 @@ interface AuditResponse {
 interface VoiceSuggestion {
   lang: string;
   text: string;
-}
-
-interface VoiceSuggestionsResponse {
-  items: VoiceSuggestion[];
 }
 
 type AgentName =
@@ -218,24 +214,9 @@ export default function VoicePage() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [transcriptLines, partialText]);
 
-  /* ───── Load voice suggestions (graceful fallback) ───── */
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        // TODO: backend endpoint may not exist — fall back to FALLBACK_SUGGESTIONS.
-        const data = await apiGet<VoiceSuggestionsResponse>("/voice/suggestions");
-        if (!cancelled && Array.isArray(data.items) && data.items.length) {
-          setSuggestions(data.items);
-        }
-      } catch {
-        // already initialised to fallback
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  /* ───── Voice suggestions: backend has no /voice/suggestions endpoint, so
+       we ship the curated list as a constant (FALLBACK_SUGGESTIONS above).
+       Left here for the day we add a server-side endpoint. ───── */
 
   /* ───── Idle transcript state follows lang ───── */
   useEffect(() => {

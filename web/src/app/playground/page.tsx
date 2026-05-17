@@ -4,13 +4,12 @@
 // User chats with a deliberately vulnerable bot; SENTRY audits every exchange
 // live and renders the five-agent verdict + findings.
 //
-// Endpoint mapping (per migration brief):
-//   POST /playground/send         { message, bot_profile, session_id }
-//   POST /playground/reset        { session_id }
-//   GET  /playground/suggestions
+// Endpoints (real backend):
+//   GET  /playground/profiles           — bot personas to pick from
+//   GET  /playground/suggested-prompts  — curated demo prompts
+//   POST /playground/chat               { message, bot_profile, session_id }
 //
-// NOTE: the legacy backend exposes /playground/chat and /playground/suggested-prompts.
-// Adjust apiPost/apiGet paths below if your backend uses the legacy names.
+// Reset is client-side only — the backend doesn't keep server-side history.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -22,7 +21,7 @@ import { REG_LABELS, escapeHtml } from "@/lib/format";
 /* ─────────────────────── Types ─────────────────────── */
 
 type Action = "allow" | "warn" | "block";
-type BotProfile = "banking" | "insurance" | "healthcare";
+type BotProfile = string;
 
 interface SuggestedPrompt {
   icon: string;
@@ -32,6 +31,16 @@ interface SuggestedPrompt {
 
 interface SuggestionsResponse {
   items: SuggestedPrompt[];
+}
+
+interface BotProfileEntry {
+  id: string;
+  label: string;
+  icon: string;
+}
+
+interface ProfilesResponse {
+  profiles: BotProfileEntry[];
 }
 
 interface ChatResponse {
@@ -69,10 +78,10 @@ const AGENTS: ReadonlyArray<{ name: AgentName; label: string }> = [
   { name: "prompt_injection_detector", label: "Prompt Injection" },
 ];
 
-const PROFILE_OPTIONS: ReadonlyArray<{ value: BotProfile; label: string }> = [
-  { value: "banking", label: "🏦 ACME Bank (banking)" },
-  { value: "insurance", label: "🛡️ ACME Insurance" },
-  { value: "healthcare", label: "🏥 ACME Health" },
+const FALLBACK_PROFILES: ReadonlyArray<BotProfileEntry> = [
+  { id: "banking", label: "ACME Bank", icon: "🏦" },
+  { id: "insurance", label: "ACME Insurance", icon: "🛡️" },
+  { id: "healthcare", label: "ACME Health", icon: "🏥" },
 ];
 
 const VERDICT_KEY: Record<Severity, string> = {
@@ -118,6 +127,7 @@ export default function PlaygroundPage() {
   >(null);
 
   const [profile, setProfile] = useState<BotProfile>("banking");
+  const [profileOptions, setProfileOptions] = useState<ReadonlyArray<BotProfileEntry>>(FALLBACK_PROFILES);
   const [inputText, setInputText] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isThinking, setIsThinking] = useState(false);
@@ -132,21 +142,32 @@ export default function PlaygroundPage() {
     if (!verdict) setSentrySub(t("pg.sentry.awaiting"));
   }, [t, verdict]);
 
-  // Load suggested prompts once on mount.
+  // Load suggested prompts + bot profiles once on mount.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        // TODO: legacy endpoint is `/playground/suggested-prompts`.
-        const data = await apiGet<SuggestionsResponse>("/playground/suggestions");
+        const data = await apiGet<SuggestionsResponse>("/playground/suggested-prompts");
         if (!cancelled) setSuggestions(data.items ?? []);
       } catch (e) {
         console.error("Failed to load suggestions", e);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    (async () => {
+      try {
+        const data = await apiGet<ProfilesResponse>("/playground/profiles");
+        if (!cancelled && data.profiles?.length) {
+          setProfileOptions(data.profiles);
+          if (!data.profiles.find((p) => p.id === profile)) {
+            setProfile(data.profiles[0].id);
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load profiles; using fallback", e);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Auto-scroll chat on new messages.
@@ -204,21 +225,14 @@ export default function PlaygroundPage() {
     setSentrySub(t("pg.sentry.awaiting"));
   }, [t]);
 
-  const resetChat = useCallback(async () => {
-    // Fire-and-forget — UI resets locally either way.
-    if (sessionId) {
-      try {
-        await apiPost("/playground/reset", { session_id: sessionId });
-      } catch (e) {
-        console.warn("playground reset failed", e);
-      }
-    }
+  const resetChat = useCallback(() => {
+    // Backend keeps no per-session history; reset is purely client-side.
     setSessionId(null);
     setMessages([]);
     resetSentryPane();
     hideAlert();
     setStats({ msgs: 0, flags: 0 });
-  }, [sessionId, resetSentryPane, hideAlert]);
+  }, [resetSentryPane, hideAlert]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -247,8 +261,7 @@ export default function PlaygroundPage() {
       setInputText("");
 
       try {
-        // TODO: legacy endpoint is `/playground/chat`.
-        const data = await apiPost<ChatResponse>("/playground/send", {
+        const data = await apiPost<ChatResponse>("/playground/chat", {
           message: text,
           bot_profile: profile,
           session_id: sessionId,
@@ -313,7 +326,7 @@ export default function PlaygroundPage() {
   };
 
   const onProfileChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setProfile(e.target.value as BotProfile);
+    setProfile(e.target.value);
     resetChat();
   };
 
@@ -364,9 +377,9 @@ export default function PlaygroundPage() {
               value={profile}
               onChange={onProfileChange}
             >
-              {PROFILE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {profileOptions.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.icon} {opt.label}
                 </option>
               ))}
             </select>
