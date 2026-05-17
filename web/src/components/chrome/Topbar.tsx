@@ -9,11 +9,9 @@ import {
   Mic,
   Target,
   PlusCircle,
-  Plug,
   Wand,
-  Layers,
-  FlaskConical,
   Boxes,
+  Presentation,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { apiGet } from "@/lib/api";
@@ -25,10 +23,9 @@ export type PageKey =
   | "voice"
   | "redteam"
   | "connect"
-  | "proxy"
   | "autofix"
-  | "architecture"
-  | "agent";
+  | "agent"
+  | "pitch";
 
 interface TopbarProps {
   pageKey: PageKey;
@@ -85,15 +82,14 @@ export default function Topbar({ pageKey }: TopbarProps) {
       label: t("nav.integrate", "Integrate"),
       items: [
         { key: "connect", href: "/connect", label: t("nav.connect", "Connect agent"), icon: PlusCircle },
-        { key: "proxy", href: "/proxy", label: t("nav.proxy"), icon: Plug },
         { key: "autofix", href: "/autofix", label: t("nav.autofix"), icon: Wand },
+        { key: "agent", href: "/agent", label: t("nav.agents", "Agents"), icon: Boxes },
       ],
     },
     {
-      label: t("nav.system", "System"),
+      label: t("nav.resources", "Resources"),
       items: [
-        { key: "architecture", href: "/architecture", label: t("nav.architecture"), icon: Layers },
-        { key: "agent", href: "/agent", label: t("nav.agents", "Agents"), icon: Boxes },
+        { key: "pitch", href: "/pitch", label: t("nav.pitch", "Pitch"), icon: Presentation },
       ],
     },
   ];

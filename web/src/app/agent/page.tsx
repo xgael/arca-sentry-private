@@ -52,46 +52,43 @@ export default function AgentPage() {
     <>
       <Topbar pageKey="agent" />
       <main className="arch-main">
-        <section className="arch-hero">
-          <div className="arch-hero-text">
-            <div className="pg-hero-eyebrow">{data?.agent.vertical ?? "Agent"}</div>
-            <h1 className="arch-hero-title">
-              {!agentId
-                ? "No agent ID provided"
-                : error
-                ? "Could not load agent"
-                : data
-                ? `${data.agent.icon ?? "🤖"}  ${data.agent.name}`
-                : "Loading agent…"}
-            </h1>
-            <p className="arch-hero-sub">
-              {error
-                ? error
-                : data?.agent.description ??
-                  (data ? `Audited by SENTRY. ${data.stats.total_interactions} interactions seen.` : "")}
-            </p>
+        <div className="page-head">
+          <div className="page-head-row">
+            <div>
+              <div className="page-eyebrow">{data?.agent.vertical ?? "Agent"}</div>
+              <h1>
+                {!agentId
+                  ? "No agent ID provided"
+                  : error
+                  ? "Could not load agent"
+                  : data
+                  ? `${data.agent.icon ?? "🤖"}  ${data.agent.name}`
+                  : "Loading agent…"}
+              </h1>
+              <p className="muted">
+                {error
+                  ? error
+                  : data?.agent.description ??
+                    (data ? `${data.stats.total_interactions} interactions audited.` : "")}
+              </p>
+            </div>
             {data && (
-              <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <a
-                  className="rt-run-btn"
-                  style={{ background: "linear-gradient(135deg, var(--red), #7a0014)", color: "white" }}
-                  href={`/redteam?prefill=${agentId}`}
-                >
-                  ⚡ Run Red Team on this agent
-                </a>
-                <a className="rt-export-btn" href="/tickets">
-                  📋 View tickets
-                </a>
+              <div className="page-head-actions">
+                <a className="btn-danger" href={`/redteam?prefill=${agentId}`}>⚡ Run Red Team</a>
+                <a className="btn-secondary" href="/tickets">📋 View tickets</a>
               </div>
             )}
           </div>
-          <div className="arch-hero-metrics">
-            <div className="metric-card"><div className="metric-val">{data?.stats.total_interactions ?? 0}</div><div className="metric-lbl">Total interactions</div></div>
-            <div className="metric-card"><div className="metric-val" style={{ color: "#fca5a5" }}>{data?.stats.by_severity.critical ?? 0}</div><div className="metric-lbl">Criticals caught</div></div>
-            <div className="metric-card"><div className="metric-val" style={{ color: "#fcd34d" }}>{data?.stats.by_severity.warning ?? 0}</div><div className="metric-lbl">Warnings</div></div>
-            <div className="metric-card"><div className="metric-val">{data ? (data.stats.total_interactions > 0 ? "active" : "idle") : "—"}</div><div className="metric-lbl">Status</div></div>
-          </div>
-        </section>
+
+          {data && (
+            <div className="page-head-metrics">
+              <div><strong>{data.stats.total_interactions}</strong> interactions</div>
+              <div><strong style={{ color: "var(--red)" }}>{data.stats.by_severity.critical ?? 0}</strong> criticals</div>
+              <div><strong style={{ color: "var(--amber)" }}>{data.stats.by_severity.warning ?? 0}</strong> warnings</div>
+              <div><strong>{data.stats.total_interactions > 0 ? "active" : "idle"}</strong></div>
+            </div>
+          )}
+        </div>
 
         <Card className="arch-card" title="Violations breakdown" subtitle="Findings caught against this agent, grouped by regulation.">
           <div className="ag-reg-grid">

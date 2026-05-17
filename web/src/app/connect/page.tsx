@@ -92,21 +92,10 @@ export default function ConnectPage() {
     <>
       <Topbar pageKey="connect" />
       <main className="arch-main">
-        <section className="arch-hero">
-          <div className="arch-hero-text">
-            <div className="pg-hero-eyebrow">Onboard a new AI agent</div>
-            <h1 className="arch-hero-title">Connect any chatbot, voice agent, or LLM API</h1>
-            <p className="arch-hero-sub">
-              Pick how your agent reaches its end users. SENTRY supports drop-in proxy mode, raw HTTP endpoint testing, web chat-widget scanning, and (coming soon) WhatsApp Business + Facebook Messenger.
-            </p>
-          </div>
-          <div className="arch-hero-metrics">
-            <div className="metric-card"><div className="metric-val">5</div><div className="metric-lbl">Channels supported</div></div>
-            <div className="metric-card"><div className="metric-val">~30 s</div><div className="metric-lbl">Time to register</div></div>
-            <div className="metric-card"><div className="metric-val">12+</div><div className="metric-lbl">Attacks ready to fire</div></div>
-            <div className="metric-card"><div className="metric-val">5</div><div className="metric-lbl">Regulations covered</div></div>
-          </div>
-        </section>
+        <div className="page-head">
+          <h1>Connect agent</h1>
+          <p className="muted">Register a new AI agent so SENTRY can audit and pen-test it.</p>
+        </div>
 
         <Card className="arch-card" title="Step 1 · Agent identity" subtitle="Give the agent a memorable name. This is how it'll appear in dashboards and tickets.">
           <div className="cn-row">

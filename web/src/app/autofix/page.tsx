@@ -97,21 +97,18 @@ export default function AutofixPage() {
     <>
       <Topbar pageKey="autofix" />
       <main className="arch-main">
-        <section className="arch-hero">
-          <div className="arch-hero-text">
-            <div className="pg-hero-eyebrow">In-line remediation</div>
-            <h1 className="arch-hero-title">Don&apos;t block the user — rewrite the response</h1>
-            <p className="arch-hero-sub">
-              When the audit detects a violation, SENTRY can ask Gemini Pro to <strong>rewrite</strong> the response so the end user receives a compliant reply instead of an error. The original AND the rewrite are both stored — your compliance team reviews the diff, not a customer complaint.
-            </p>
+        <div className="page-head">
+          <div className="page-head-row">
+            <div>
+              <h1>Auto-Fix</h1>
+              <p className="muted">Rewrites flagged responses inline so the end user gets a compliant reply.</p>
+            </div>
+            <div className="page-head-stats">
+              <span><strong>{total}</strong> rewrites this session</span>
+              <span className={`mode-pill ${enabled ? "on" : "off"}`}>{enabled ? "ON" : "OFF"}</span>
+            </div>
           </div>
-          <div className="arch-hero-metrics">
-            <div className="metric-card"><div className="metric-val">{total}</div><div className="metric-lbl">Rewrites this session</div></div>
-            <div className="metric-card"><div className="metric-val">Gemini Pro</div><div className="metric-lbl">Rewriting engine</div></div>
-            <div className="metric-card"><div className="metric-val">{enabled ? "ON" : "OFF"}</div><div className="metric-lbl">Current mode</div></div>
-            <div className="metric-card"><div className="metric-val">5 lang</div><div className="metric-lbl">Output languages</div></div>
-          </div>
-        </section>
+        </div>
 
         <Card className="arch-card" title="Configuration" subtitle="When enabled, SENTRY rewrites every response flagged at or above the minimum severity. When disabled, behaviour reverts to standard block/warn/allow.">
           <div className="af-toggle-wrap">
