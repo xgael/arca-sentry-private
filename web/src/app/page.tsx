@@ -12,8 +12,8 @@ import DonutCompliance from "@/components/charts/DonutCompliance";
 import TimelineChart from "@/components/charts/TimelineChart";
 import RegsBar from "@/components/charts/RegsBar";
 import Sparkline from "@/components/charts/Sparkline";
+import { toast } from "sonner";
 import { useT } from "@/lib/i18n";
-import { useToast } from "@/components/ui/Toast";
 import { apiGet, apiPost, type FeedItem, type SummaryStats, type TimelineData, type RegStats, type Severity } from "@/lib/api";
 import { CHANNEL_ICONS, LANG_TAG, REG_LABELS, formatTime } from "@/lib/format";
 
@@ -36,7 +36,6 @@ const INITIAL_AGENTS: AgentRow[] = [
 
 export default function DashboardPage() {
   const { t } = useT();
-  const toast = useToast();
 
   const [summary, setSummary] = useState<SummaryStats | null>(null);
   const [timeline, setTimeline] = useState<TimelineData | null>(null);
@@ -69,11 +68,13 @@ export default function DashboardPage() {
             knownSeqs.current.add(i.seq);
             const first = i.findings[0];
             const reg = first ? (REG_LABELS[first.regulation] ?? first.regulation) : "Unknown";
-            toast.show({
-              title: `${i.severity.toUpperCase()} · ${reg}`,
-              msg: i.response_preview || "New violation detected.",
-              type: i.severity === "critical" ? "critical" : "warning",
-            });
+            const title = `${i.severity.toUpperCase()} · ${reg}`;
+            const description = i.response_preview || "New violation detected.";
+            if (i.severity === "critical") {
+              toast.error(title, { description });
+            } else {
+              toast.warning(title, { description });
+            }
           } else {
             knownSeqs.current.add(i.seq);
           }
@@ -84,7 +85,7 @@ export default function DashboardPage() {
       setFeed(items);
       firstLoad.current = true;
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     apiGet<{ scenarios: string[] }>("/demo/scenarios").then((d) => setScenarios(d.scenarios)).catch(() => {});
