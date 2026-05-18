@@ -178,11 +178,28 @@ const TOPO_CARDS = [
   { tierKey: "arch.topo.ent.tier", spec: "Kubernetes · 6+ pods per service · regional HA", bullets: ["PostgreSQL HA cluster", "SIEM integration", "Vault for secrets", "500+ req/s"] },
 ];
 
+const ARCH_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
+  { id: "arch-flow", label: "Flow" },
+  { id: "arch-agents", label: "Agents" },
+  { id: "arch-severity", label: "Severity" },
+  { id: "arch-integrity", label: "Integrity" },
+  { id: "arch-stack", label: "Stack" },
+  { id: "arch-perf", label: "Performance" },
+  { id: "arch-security", label: "Security" },
+  { id: "arch-topology", label: "Topology" },
+];
+
 function Architecture() {
   const { t } = useT();
   return (
-    <>
-      <section className="card arch-card">
+    <div className="arch-layout">
+      <nav className="arch-anchor-nav" aria-label="Architecture sections">
+        {ARCH_SECTIONS.map((s) => (
+          <a key={s.id} href={`#${s.id}`}>{s.label}</a>
+        ))}
+      </nav>
+      <div className="arch-sections">
+      <section id="arch-flow" className="card arch-card">
         <div className="card-head">
           <h2>{t("arch.flow.title")}</h2>
           <p className="muted">{t("arch.flow.desc")}</p>
@@ -201,7 +218,7 @@ function Architecture() {
         </div>
       </section>
 
-      <section className="card arch-card">
+      <section id="arch-agents" className="card arch-card">
         <div className="card-head">
           <h2>{t("arch.agents.title")}</h2>
           <p className="muted">{t("arch.agents.desc")}</p>
@@ -221,7 +238,7 @@ function Architecture() {
         </div>
       </section>
 
-      <section className="card arch-card">
+      <section id="arch-severity" className="card arch-card">
         <div className="card-head">
           <h2>{t("arch.severity.title")}</h2>
           <p className="muted">{t("arch.severity.desc")}</p>
@@ -249,7 +266,7 @@ function Architecture() {
         </div>
       </section>
 
-      <section className="card arch-card">
+      <section id="arch-integrity" className="card arch-card">
         <div className="card-head">
           <h2>{t("arch.integrity.title")}</h2>
           <p className="muted">{t("arch.integrity.desc")}</p>
@@ -270,7 +287,7 @@ function Architecture() {
         </div>
       </section>
 
-      <section className="card arch-card">
+      <section id="arch-stack" className="card arch-card">
         <div className="card-head">
           <h2>{t("arch.stack.title")}</h2>
           <p className="muted">{t("arch.stack.desc")}</p>
@@ -289,7 +306,7 @@ function Architecture() {
         </div>
       </section>
 
-      <section className="card arch-card">
+      <section id="arch-perf" className="card arch-card">
         <div className="card-head">
           <h2>{t("arch.perf.title")}</h2>
           <p className="muted">{t("arch.perf.desc")}</p>
@@ -305,7 +322,7 @@ function Architecture() {
         </div>
       </section>
 
-      <section className="card arch-card">
+      <section id="arch-security" className="card arch-card">
         <div className="card-head">
           <h2>{t("arch.sec.title")}</h2>
           <p className="muted">{t("arch.sec.desc")}</p>
@@ -320,7 +337,7 @@ function Architecture() {
         </div>
       </section>
 
-      <section className="card arch-card">
+      <section id="arch-topology" className="card arch-card">
         <div className="card-head">
           <h2>{t("arch.topo.title")}</h2>
           <p className="muted">{t("arch.topo.desc")}</p>
@@ -337,7 +354,8 @@ function Architecture() {
           ))}
         </div>
       </section>
-    </>
+      </div>
+    </div>
   );
 }
 

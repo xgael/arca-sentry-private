@@ -166,6 +166,47 @@
 .pitch-head h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; color: var(--ink); }
 .pitch-tabs { margin-top: 4px; }
 
+/* Architecture anchor-nav layout (Pitch → Architecture tab) */
+.arch-layout {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+.arch-anchor-nav {
+  position: sticky; top: 24px;
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+.arch-anchor-nav a {
+  display: block; padding: 6px 12px;
+  font-size: 12.5px; font-weight: 500;
+  color: var(--ink-3); border-radius: var(--r-xs);
+  border-left: 2px solid transparent;
+  transition: all var(--t-fast) var(--ease-spring-soft);
+}
+.arch-anchor-nav a:hover {
+  color: var(--blue-700); background: var(--blue-50);
+  text-decoration: none;
+}
+.arch-anchor-nav a:target,
+.arch-anchor-nav a:focus { color: var(--blue-700); }
+.arch-sections { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.arch-sections section { scroll-margin-top: 24px; }
+@media (max-width: 960px) {
+  .arch-layout { grid-template-columns: 1fr; gap: 18px; }
+  .arch-anchor-nav {
+    position: static;
+    flex-direction: row; flex-wrap: wrap; padding: 8px;
+  }
+  .arch-anchor-nav a { padding: 5px 10px; border-left: none; border: 1px solid var(--line); }
+}
+
 /* ═════════════ ARCHITECTURE ═════════════ */
 .arch-main {
   margin: 0 0 0 var(--sidebar-width);
