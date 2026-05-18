@@ -7,7 +7,6 @@ import {
   Ticket,
   MessagesSquare,
   Target,
-  PlusCircle,
   Wand,
   Boxes,
   Presentation,
@@ -20,9 +19,8 @@ export type PageKey =
   | "tickets"
   | "chat"
   | "redteam"
-  | "connect"
   | "autofix"
-  | "agent"
+  | "agents"
   | "pitch";
 
 interface TopbarProps {
@@ -115,7 +113,7 @@ export default function Topbar({ pageKey }: TopbarProps) {
     {
       label: t("nav.integrate", "Integrate"),
       items: [
-        { key: "connect", href: "/connect", label: t("nav.connect", "Connect agent"), icon: PlusCircle },
+        { key: "agents", href: "/agents", label: t("nav.agents", "Agents"), icon: Boxes },
         {
           key: "autofix",
           href: "/autofix",
@@ -125,7 +123,6 @@ export default function Topbar({ pageKey }: TopbarProps) {
             <span className="sidebar-badge dot" title="Auto-Fix is ON" />
           ) : undefined,
         },
-        { key: "agent", href: "/agent", label: t("nav.agents", "Agents"), icon: Boxes },
       ],
     },
     {
