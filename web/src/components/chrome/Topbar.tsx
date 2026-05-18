@@ -39,10 +39,20 @@ interface NavSection {
   }>;
 }
 
+interface NavItem {
+  key: PageKey;
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: React.ReactNode;
+}
+
 export default function Topbar({ pageKey }: TopbarProps) {
   const { t, lang, setLang } = useT();
   const [live, setLive] = useState(false);
   const [host, setHost] = useState("");
+  const [openTickets, setOpenTickets] = useState<number>(0);
+  const [autofixEnabled, setAutofixEnabled] = useState<boolean>(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -60,12 +70,39 @@ export default function Topbar({ pageKey }: TopbarProps) {
     return () => { cancelled = true; };
   }, []);
 
-  const sections: NavSection[] = [
+  // Sidebar signals: open ticket count + auto-fix mode. Polled lightly so any
+  // page reflects the cross-cutting state of the system.
+  useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const s = await apiGet<{ open_count: number }>("/tickets/summary");
+        if (!cancelled) setOpenTickets(s.open_count ?? 0);
+      } catch {/* ignore */}
+      try {
+        const a = await apiGet<{ enabled: boolean }>("/autofix/settings");
+        if (!cancelled) setAutofixEnabled(Boolean(a.enabled));
+      } catch {/* ignore */}
+    };
+    void tick();
+    const id = setInterval(tick, 12000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+
+  const sections: Array<{ label: string; items: NavItem[] }> = [
     {
       label: t("nav.section.overview", "Overview"),
       items: [
         { key: "dashboard", href: "/", label: t("nav.dashboard"), icon: LayoutDashboard },
-        { key: "tickets", href: "/tickets", label: t("nav.tickets"), icon: Ticket },
+        {
+          key: "tickets",
+          href: "/tickets",
+          label: t("nav.tickets"),
+          icon: Ticket,
+          badge: openTickets > 0 ? (
+            <span className="sidebar-badge count">{openTickets > 99 ? "99+" : openTickets}</span>
+          ) : undefined,
+        },
       ],
     },
     {
@@ -79,7 +116,15 @@ export default function Topbar({ pageKey }: TopbarProps) {
       label: t("nav.integrate", "Integrate"),
       items: [
         { key: "connect", href: "/connect", label: t("nav.connect", "Connect agent"), icon: PlusCircle },
-        { key: "autofix", href: "/autofix", label: t("nav.autofix"), icon: Wand },
+        {
+          key: "autofix",
+          href: "/autofix",
+          label: t("nav.autofix"),
+          icon: Wand,
+          badge: autofixEnabled ? (
+            <span className="sidebar-badge dot" title="Auto-Fix is ON" />
+          ) : undefined,
+        },
         { key: "agent", href: "/agent", label: t("nav.agents", "Agents"), icon: Boxes },
       ],
     },
@@ -140,7 +185,8 @@ export default function Topbar({ pageKey }: TopbarProps) {
                   className={`sidebar-link ${active ? "active" : ""}`}
                 >
                   <Icon className="icon-svg" />
-                  <span>{item.label}</span>
+                  <span className="sidebar-link-label">{item.label}</span>
+                  {item.badge}
                 </Link>
               );
             })}

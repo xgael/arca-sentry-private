@@ -495,15 +495,22 @@ code {
 }
 .chat-bot-meta { display: flex; flex-direction: column; gap: 1px; }
 .chat-bot-name {
-  border: none; background: transparent; padding: 0;
-  font: inherit; font-size: 15px; font-weight: 700; color: var(--ink);
+  border: 1px solid transparent;
+  background: transparent; padding: 4px 26px 4px 8px;
+  margin-left: -8px;
+  font: inherit; font-family: var(--font-display);
+  font-size: 15px; font-weight: 700; color: var(--ink);
+  letter-spacing: -0.2px;
   cursor: pointer; appearance: none; -webkit-appearance: none;
-  padding-right: 18px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path fill='%235a6b85' d='M5 7 1 3h8z'/></svg>");
+  border-radius: var(--r-sm);
+  transition: background var(--t-fast) var(--ease-spring-soft),
+              border-color var(--t-fast) var(--ease-spring-soft);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%231d4ed8' d='M6 8.4 1.6 4h8.8z'/></svg>");
   background-repeat: no-repeat;
-  background-position: right center;
+  background-position: right 8px center;
 }
-.chat-bot-name:focus { outline: none; color: var(--blue-700); }
+.chat-bot-name:hover { background: var(--blue-50); border-color: var(--blue-100); }
+.chat-bot-name:focus { outline: none; background: var(--blue-50); border-color: var(--blue-500); }
 .chat-bot-sub { font-size: 11px; color: var(--ink-3); font-family: "JetBrains Mono", monospace; }
 .chat-reset {
   display: inline-flex; align-items: center; gap: 6px;

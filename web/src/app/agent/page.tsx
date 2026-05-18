@@ -92,10 +92,23 @@ export default function AgentPage() {
 
         <Card className="arch-card" title="Violations breakdown" subtitle="Findings caught against this agent, grouped by regulation.">
           <div className="ag-reg-grid">
-            {!data && <div className="muted">Loading…</div>}
+            {!data && !error && (
+              <>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="ag-reg-item">
+                    <span className="skeleton-line w-half" />
+                    <span className="skeleton-line h-tall w-third" style={{ marginTop: 8 }} />
+                  </div>
+                ))}
+              </>
+            )}
             {data && Object.entries(data.stats.by_regulation).length === 0 && (
-              <div className="muted" style={{ padding: 14 }}>
-                No findings yet against this agent.
+              <div className="list-empty" style={{ gridColumn: "1 / -1" }}>
+                <div className="list-empty-mark">🛡️</div>
+                <div className="list-empty-title">No findings yet</div>
+                <div className="list-empty-desc">
+                  This agent hasn&apos;t triggered any violation. Run Red Team to probe it actively.
+                </div>
               </div>
             )}
             {data &&
@@ -123,17 +136,27 @@ export default function AgentPage() {
                 </tr>
               </thead>
               <tbody>
-                {!data && (
-                  <tr>
-                    <td colSpan={6} className="muted" style={{ padding: 24, textAlign: "center" }}>
-                      Loading…
-                    </td>
-                  </tr>
+                {!data && !error && (
+                  <>
+                    {[0, 1, 2, 3].map((i) => (
+                      <tr key={i}>
+                        {Array.from({ length: 6 }).map((_, j) => (
+                          <td key={j}><span className="skeleton-line w-two-thirds" /></td>
+                        ))}
+                      </tr>
+                    ))}
+                  </>
                 )}
                 {data && data.recent_interactions.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="muted" style={{ padding: 24, textAlign: "center" }}>
-                      No interactions audited yet for this agent.
+                    <td colSpan={6} style={{ padding: 0 }}>
+                      <div className="list-empty">
+                        <div className="list-empty-mark">📭</div>
+                        <div className="list-empty-title">No interactions audited yet</div>
+                        <div className="list-empty-desc">
+                          This agent hasn&apos;t produced any audited exchange. Send traffic through SENTRY (proxy or /audit) to populate this list.
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -167,7 +190,7 @@ export default function AgentPage() {
       </main>
 
       <footer className="footer">
-        ARCA SENTRY · Continuous compliance auditing for enterprise AI
+        © ARCA SENTRY
       </footer>
     </>
   );

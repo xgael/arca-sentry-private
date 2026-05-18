@@ -46,7 +46,7 @@ type StatusFilter = "" | "open" | "in_progress" | "resolved" | "dismissed";
 export default function TicketsPage() {
   const { t } = useT();
   const [summary, setSummary] = useState<TicketSummary | null>(null);
-  const [tickets, setTickets] = useState<TicketRow[]>([]);
+  const [tickets, setTickets] = useState<TicketRow[] | null>(null);
   const [filter, setFilter] = useState<StatusFilter>("");
 
   const refreshSummary = useCallback(async () => {
@@ -72,7 +72,7 @@ export default function TicketsPage() {
   }, [refreshSummary, refreshTickets]);
 
   async function setStatus(iid: string, status: TicketRow["status"]) {
-    const prev = tickets.find((tk) => tk.interaction_id === iid)?.status ?? null;
+    const prev = tickets?.find((tk) => tk.interaction_id === iid)?.status ?? null;
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "/api"}/tickets/${iid}/status?status=${status}`, {
         method: "PATCH",
@@ -180,12 +180,30 @@ export default function TicketsPage() {
           </div>
 
           <div className="ticket-section">
-            {tickets.length === 0 && (
-              <div className="muted" style={{ padding: 24, textAlign: "center" }}>
-                No tickets in this filter.
+            {tickets === null && (
+              <>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="skeleton-card">
+                    <span className="skeleton-line w-third" />
+                    <span className="skeleton-line h-tall w-two-thirds" />
+                    <span className="skeleton-line w-half" />
+                  </div>
+                ))}
+              </>
+            )}
+            {tickets !== null && tickets.length === 0 && (
+              <div className="list-empty">
+                <div className="list-empty-mark">🎫</div>
+                <div className="list-empty-title">No tickets in this view</div>
+                <div className="list-empty-desc">
+                  {filter
+                    ? "Switch the filter to “All” or trigger a violation from the Chat to create one."
+                    : "Run a demo scenario on the Dashboard — every warning or critical becomes a ticket here."}
+                </div>
+                <a href="/">→ Open Dashboard</a>
               </div>
             )}
-            {tickets.map((tk) => (
+            {tickets?.map((tk) => (
               <div className={`ticket-card ${tk.severity}`} key={tk.ticket_id}>
                 <div className="ticket-head">
                   <div style={{ flex: 1 }}>
@@ -301,7 +319,7 @@ export default function TicketsPage() {
       </main>
 
       <footer className="footer">
-        ARCA SENTRY · Continuous compliance auditing for enterprise AI
+        © ARCA SENTRY
       </footer>
     </>
   );

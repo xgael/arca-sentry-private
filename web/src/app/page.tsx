@@ -366,7 +366,7 @@ export default function DashboardPage() {
       <Drawer interactionId={drawerId} onClose={() => setDrawerId(null)} />
 
       <footer className="footer">
-        ARCA SENTRY · Continuous compliance auditing for enterprise AI
+        © ARCA SENTRY
       </footer>
     </>
   );

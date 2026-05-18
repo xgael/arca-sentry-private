@@ -41,6 +41,7 @@ export default function AutofixPage() {
 
   const [result, setResult] = useState<RewriteResponse | null>(null);
   const [history, setHistory] = useState<AutofixHistory["items"]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const stickyToastIdRef = useRef<string | null>(null);
 
   const loadHistory = useCallback(async () => {
@@ -48,6 +49,7 @@ export default function AutofixPage() {
       const d = await apiGet<AutofixHistory>("/autofix/history?limit=20");
       setHistory(d.items ?? []);
     } catch {/* ignore */}
+    finally { setHistoryLoading(false); }
   }, []);
 
   useEffect(() => {
@@ -240,9 +242,23 @@ export default function AutofixPage() {
 
         <Card className="arch-card" title="Recent rewrites" subtitle="Last 20 rewrites issued. Click any row to expand the before/after diff.">
           <div className="af-history">
-            {history.length === 0 && (
-              <div className="muted" style={{ padding: 24, textAlign: "center" }}>
-                No rewrites yet.
+            {historyLoading && history.length === 0 && (
+              <>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="skeleton-card">
+                    <span className="skeleton-line w-third" />
+                    <span className="skeleton-line w-full" />
+                  </div>
+                ))}
+              </>
+            )}
+            {!historyLoading && history.length === 0 && (
+              <div className="list-empty">
+                <div className="list-empty-mark">✨</div>
+                <div className="list-empty-title">No rewrites yet</div>
+                <div className="list-empty-desc">
+                  Try the form above — paste an offending response and a rationale, and SENTRY rewrites it with Gemini Pro.
+                </div>
               </div>
             )}
             {history.map((it) => (
@@ -268,7 +284,7 @@ export default function AutofixPage() {
       </main>
 
       <footer className="footer">
-        ARCA SENTRY · Continuous compliance auditing for enterprise AI
+        © ARCA SENTRY
       </footer>
     </>
   );

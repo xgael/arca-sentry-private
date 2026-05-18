@@ -216,7 +216,7 @@ export default function ConnectPage() {
       </main>
 
       <footer className="footer">
-        ARCA SENTRY · Continuous compliance auditing for enterprise AI
+        © ARCA SENTRY
       </footer>
     </>
   );
