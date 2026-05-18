@@ -128,7 +128,7 @@ export default function Topbar({ pageKey }: TopbarProps) {
     {
       label: t("nav.resources", "Resources"),
       items: [
-        { key: "pitch", href: "/pitch", label: t("nav.pitch", "Pitch"), icon: Presentation },
+        { key: "pitch", href: "/pitch", label: t("nav.architecture", "Arquitectura"), icon: Presentation },
       ],
     },
   ];
@@ -203,14 +203,18 @@ export default function Topbar({ pageKey }: TopbarProps) {
           </span>
         </div>
         {host && <div className="sidebar-host">{host}</div>}
-        <button
-          type="button"
+        <select
           className="lang-switch"
-          onClick={() => setLang(lang === "en" ? "es" : "en")}
+          value={lang}
+          onChange={(e) => setLang(e.target.value as typeof lang)}
           aria-label="Switch language"
         >
-          {lang === "en" ? "🇪🇸 ES" : "🇬🇧 EN"}
-        </button>
+          <option value="en">🇬🇧 EN</option>
+          <option value="es">🇲🇽 ES</option>
+          <option value="it">🇮🇹 IT</option>
+          <option value="pt">🇧🇷 PT</option>
+          <option value="zh">🇨🇳 ZH</option>
+        </select>
       </div>
     </aside>
   );

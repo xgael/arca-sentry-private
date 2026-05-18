@@ -34,7 +34,7 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 function isLang(value: unknown): value is Lang {
-  return value === "en" || value === "es";
+  return value === "en" || value === "es" || value === "it" || value === "pt" || value === "zh";
 }
 
 function resolveInitialLang(): Lang {

@@ -116,7 +116,7 @@ export default function CommandPalette() {
       { id: "nav-agents", group: "Navigate", label: "Agents", hint: "Registered AI agents · list + profiles", icon: Boxes, run: goto("/agents") },
       { id: "nav-agents-new", group: "Navigate", label: "Connect agent", hint: "Open the registration wizard", icon: PlusCircle, run: goto("/agents?new=1") },
       { id: "nav-autofix", group: "Navigate", label: "Auto-Fix", hint: "Rewrite flagged responses", icon: Wand, run: goto("/autofix") },
-      { id: "nav-pitch", group: "Navigate", label: "Pitch", hint: "How it works · architecture · proxy", icon: Presentation, run: goto("/pitch") },
+      { id: "nav-pitch", group: "Navigate", label: "Arquitectura", hint: "How it works · architecture · proxy", icon: Presentation, run: goto("/pitch") },
     ];
     // Sort scenarios by group label so they cluster together in the list,
     // even though our header-rendering pass keys off `group` change.

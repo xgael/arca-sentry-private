@@ -3,7 +3,15 @@
 // HTML fragments (e.g. <code>, <strong>, <span class="sev-pill ...">) and must
 // be rendered via dangerouslySetInnerHTML at the consuming component.
 
-export type Lang = "en" | "es";
+export type Lang = "en" | "es" | "it" | "pt" | "zh";
+
+export const LANG_LABELS: Record<Lang, string> = {
+  en: "🇬🇧 EN",
+  es: "🇲🇽 ES",
+  it: "🇮🇹 IT",
+  pt: "🇧🇷 PT",
+  zh: "🇨🇳 ZH",
+};
 
 export const DICT: Record<Lang, Record<string, string>> = {
   en: {
@@ -643,6 +651,11 @@ export const DICT: Record<Lang, Record<string, string>> = {
     "rt.export.copy": "📋 Copiar resumen al portapapeles",
     "rt.export.share": "🔗 Generar enlace compartible",
   },
+  // IT / PT / ZH ship as empty objects → useT() falls back to EN automatically.
+  // Adding entries here later upgrades those locales without code changes.
+  it: {},
+  pt: {},
+  zh: {},
 };
 
 export const DEFAULT_LANG: Lang = "en";
