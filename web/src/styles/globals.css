@@ -763,16 +763,22 @@ main {
 .ticket-status.resolved { background: var(--green-50); color: var(--green); }
 .ticket-status.dismissed { background: var(--slate-50); color: var(--slate); }
 .ticket-cost {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--red-50); color: var(--red);
-  padding: 6px 10px; border-radius: var(--r-sm);
-  font-size: 12px; font-weight: 700; margin: 10px 0;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-elev); color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 8px 12px; border-radius: var(--r-sm);
+  font-size: 12px; margin: 10px 0;
 }
 .ticket-cost .cost-label {
-  font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
-  font-weight: 600; opacity: 0.85;
+  font-size: 11px; color: var(--ink-3);
+  font-weight: 500;
 }
-.ticket-cost .cost-value { font-size: 14px; font-weight: 800; }
+.ticket-cost .cost-value {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700;
+  color: var(--ink); letter-spacing: -0.4px;
+  font-variant-numeric: tabular-nums;
+}
 .ticket-suggestion {
   background: var(--blue-50); border-left: 3px solid var(--blue-500);
   padding: 12px 14px; border-radius: 0 var(--r-sm) var(--r-sm) 0;

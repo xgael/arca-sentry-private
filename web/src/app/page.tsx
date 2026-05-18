@@ -199,8 +199,8 @@ export default function DashboardPage() {
               <span className="unit">%</span>
             </div>
             <div className="hero-mega-lbl">
-              Continuous compliance auditing for enterprise AI across EU AI Act,
-              GDPR, DORA, PII and prompt injection.
+              EU AI Act · GDPR · DORA · PII Leak · Prompt Injection. Audited
+              end-to-end in under 6 seconds per interaction.
             </div>
           </div>
           <div className="hero-satellites">
