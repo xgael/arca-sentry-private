@@ -22,9 +22,26 @@ interface CommandItem {
   id: string;
   label: string;
   hint?: string;
-  group: "Navigate" | "Demo" | "System";
+  group: string;
   icon: React.ComponentType<{ className?: string }>;
   run: () => void | Promise<void>;
+}
+
+// Scenario → regulation mapping for cmdK grouping. Falls back to "Demo · Other"
+// if the backend ships a scenario not in this map.
+const SCENARIO_REG: Record<string, { label: string; reg: string }> = {
+  credit_denial:        { label: "EU AI Act", reg: "eu_ai_act" },
+  credit_denial_es:     { label: "EU AI Act", reg: "eu_ai_act" },
+  voice_no_disclosure:  { label: "EU AI Act", reg: "eu_ai_act" },
+  pii_leak:             { label: "GDPR · PII", reg: "pii_leak" },
+  gdpr_erasure:         { label: "GDPR", reg: "gdpr" },
+  prompt_injection:     { label: "Prompt Injection", reg: "prompt_injection" },
+  dora_incident:        { label: "DORA", reg: "dora" },
+};
+
+function scenarioGroup(name: string): string {
+  const m = SCENARIO_REG[name];
+  return `Demo · ${m?.label ?? "Other"}`;
 }
 
 export default function CommandPalette() {
@@ -101,9 +118,14 @@ export default function CommandPalette() {
       { id: "nav-agents", group: "Navigate", label: "Agents", hint: "Per-agent profile", icon: Boxes, run: goto("/agent") },
       { id: "nav-pitch", group: "Navigate", label: "Pitch", hint: "How it works · architecture · proxy", icon: Presentation, run: goto("/pitch") },
     ];
-    const demo: CommandItem[] = scenarios.map((s) => ({
+    // Sort scenarios by group label so they cluster together in the list,
+    // even though our header-rendering pass keys off `group` change.
+    const demoSorted = [...scenarios].sort((a, b) =>
+      scenarioGroup(a).localeCompare(scenarioGroup(b)) || a.localeCompare(b),
+    );
+    const demo: CommandItem[] = demoSorted.map((s) => ({
       id: `demo-${s}`,
-      group: "Demo",
+      group: scenarioGroup(s),
       label: s.replace(/_/g, " "),
       hint: "Run demo scenario",
       icon: Zap,

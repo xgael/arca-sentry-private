@@ -164,6 +164,33 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length, isThinking, partialText]);
 
+  /* iOS Safari: when the soft keyboard opens, visualViewport.height shrinks
+     but `100dvh` doesn't always react in time. Track the visible viewport
+     and surface it as `--chat-viewport-h` so the shell can size correctly.
+     No-op on browsers without visualViewport. */
+  useEffect(() => {
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    if (!vv) return;
+    const apply = () => {
+      document.documentElement.style.setProperty(
+        "--chat-viewport-h",
+        `${vv.height}px`,
+      );
+      // When keyboard opens mid-chat, keep the last bubble in view.
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ block: "end" });
+      });
+    };
+    apply();
+    vv.addEventListener("resize", apply);
+    vv.addEventListener("scroll", apply);
+    return () => {
+      vv.removeEventListener("resize", apply);
+      vv.removeEventListener("scroll", apply);
+      document.documentElement.style.removeProperty("--chat-viewport-h");
+    };
+  }, []);
+
   /* IntersectionObserver: track whether the last-message sentinel is in view.
      The toast-fallback for violations only fires when it's NOT — i.e. when the
      user has scrolled up far enough that the verdict pill is off-screen. */
