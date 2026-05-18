@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${geist.variable} ${jetbrainsMono.variable}`}>
       <body>
         <I18nProvider>
-          <ToastProvider position="top-right">
+          <ToastProvider position="top-center">
             {children}
             <CommandPalette />
           </ToastProvider>
