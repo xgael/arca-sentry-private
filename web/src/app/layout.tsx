@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Geist } from "next/font/google";
 import { I18nProvider } from "@/lib/i18n";
 import { ToastProvider } from "@/components/ui/toast";
 import CommandPalette from "@/components/chrome/CommandPalette";
+import BackendStatusBanner from "@/components/chrome/BackendStatusBanner";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <I18nProvider>
           <ToastProvider position="top-center">
+            <BackendStatusBanner />
             {children}
             <CommandPalette />
           </ToastProvider>

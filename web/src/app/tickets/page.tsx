@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import Topbar from "@/components/chrome/Topbar";
 import Card from "@/components/ui/Card";
-import { apiGet, apiPost } from "@/lib/api";
+import { apiGet, apiPost, apiUrl } from "@/lib/api";
 import { REG_LABELS } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 import { toast } from "@/components/ui/toast";
@@ -74,7 +74,7 @@ export default function TicketsPage() {
   async function setStatus(iid: string, status: TicketRow["status"]) {
     const prev = tickets?.find((tk) => tk.interaction_id === iid)?.status ?? null;
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "/api"}/tickets/${iid}/status?status=${status}`, {
+      await fetch(apiUrl(`/tickets/${iid}/status?status=${status}`), {
         method: "PATCH",
       });
       await Promise.all([refreshSummary(), refreshTickets()]);
