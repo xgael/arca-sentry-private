@@ -1,8 +1,9 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
+// Always go through the Next.js `/api/*` rewrite so the browser sees a
+// same-origin request. The rewrite (see next.config.ts) forwards to the
+// real backend (read from NEXT_PUBLIC_API_URL). This sidesteps CORS even
+// if the backend doesn't ship CORSMiddleware.
 function url(path: string): string {
   if (path.startsWith("http")) return path;
-  if (BASE) return `${BASE}${path.startsWith("/") ? path : `/${path}`}`;
   return `/api${path.startsWith("/") ? path : `/${path}`}`;
 }
 
