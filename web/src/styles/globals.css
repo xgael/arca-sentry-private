@@ -1096,7 +1096,7 @@ main {
   .sidebar-section { flex-direction: row; flex-wrap: wrap; gap: 4px; }
   .sidebar-section-label { display: none; }
   .sidebar-link { padding: 6px 10px; font-size: 12px; }
-  .sidebar-link span:not(.icon-svg) { display: none; }
+  .sidebar-link .sidebar-link-label { display: none; }
   .sidebar-footer {
     padding: 0; border-top: none;
     flex-direction: row; gap: 8px; align-items: center; margin-left: auto;

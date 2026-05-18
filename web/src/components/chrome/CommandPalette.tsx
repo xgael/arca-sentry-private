@@ -9,6 +9,7 @@ import {
   Target,
   Wand,
   Boxes,
+  PlusCircle,
   Presentation,
   Languages,
   Zap,
@@ -113,7 +114,7 @@ export default function CommandPalette() {
       { id: "nav-chat", group: "Navigate", label: "Chat", hint: "Talk to the vulnerable bot (text + voice)", icon: MessagesSquare, run: goto("/chat") },
       { id: "nav-redteam", group: "Navigate", label: "Red Team", hint: "Run pen-test attack suite", icon: Target, run: goto("/redteam") },
       { id: "nav-agents", group: "Navigate", label: "Agents", hint: "Registered AI agents · list + profiles", icon: Boxes, run: goto("/agents") },
-      { id: "nav-agents-new", group: "Navigate", label: "Connect agent", hint: "Open the registration wizard", icon: Boxes, run: goto("/agents?new=1") },
+      { id: "nav-agents-new", group: "Navigate", label: "Connect agent", hint: "Open the registration wizard", icon: PlusCircle, run: goto("/agents?new=1") },
       { id: "nav-autofix", group: "Navigate", label: "Auto-Fix", hint: "Rewrite flagged responses", icon: Wand, run: goto("/autofix") },
       { id: "nav-pitch", group: "Navigate", label: "Pitch", hint: "How it works · architecture · proxy", icon: Presentation, run: goto("/pitch") },
     ];

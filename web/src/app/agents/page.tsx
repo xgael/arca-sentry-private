@@ -146,10 +146,18 @@ export default function AgentsPage() {
           {agents === null && (
             <div className="agents-list">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="skeleton-card">
-                  <span className="skeleton-line w-third" />
-                  <span className="skeleton-line h-tall w-half" />
-                  <span className="skeleton-line w-two-thirds" />
+                <div key={i} className="agent-list-row agent-list-skeleton" aria-hidden="true">
+                  <span className="agent-list-avatar skeleton-avatar" />
+                  <div className="agent-list-meta">
+                    <span className="skeleton-line h-tall w-half" />
+                    <span className="skeleton-line w-third" style={{ marginTop: 6 }} />
+                  </div>
+                  <div className="agent-list-stats">
+                    <span className="skeleton-line" style={{ width: 60 }} />
+                    <span className="skeleton-line" style={{ width: 60 }} />
+                    <span className="skeleton-line" style={{ width: 60 }} />
+                  </div>
+                  <span />
                 </div>
               ))}
             </div>
