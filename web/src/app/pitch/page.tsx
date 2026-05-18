@@ -65,15 +65,6 @@ function HowItWorks() {
     <>
       <section className="card arch-card">
         <div className="card-head">
-          <h2>What ARCA SENTRY does</h2>
-          <p className="muted">
-            Continuous compliance auditing for enterprise AI. Every interaction your AI produces is audited in real time against EU regulatory frameworks (EU AI Act · GDPR · DORA), PII leakage, and prompt-injection attacks. Violations get blocked, warned, or logged — and the whole audit trail is tamper-evident.
-          </p>
-        </div>
-      </section>
-
-      <section className="card arch-card">
-        <div className="card-head">
           <h2>Connect any agent</h2>
           <p className="muted">
             Onboarding takes ~30 seconds. SENTRY supports drop-in proxy mode (OpenAI / Anthropic / Gemini SDKs), raw HTTP endpoint testing, web chat-widget scanning, and (soon) WhatsApp + Facebook Messenger.
